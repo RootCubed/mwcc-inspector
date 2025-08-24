@@ -23,7 +23,7 @@ namespace mwcc_inspector.MwccTypes {
             HashVal = RawData.HashVal;
 
             var nameAddr = address + Marshal.SizeOf<HashNameNodeRaw>();
-            Name = client.DataSpaces.ReadMultiByteStringVirtual(nameAddr, 10);
+            Name = client.DataSpaces.ReadMultiByteStringVirtual(nameAddr, 255);
         }
     }
 }

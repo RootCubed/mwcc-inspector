@@ -82,6 +82,14 @@ namespace mwcc_inspector {
         public readonly double Value = client.DataSpaces.ReadVirtual<double>(address);
     }
 
+    class ENodeDataStringVal : ENodeData {
+        public readonly string Value;
+        public ENodeDataStringVal(DebugClient client, uint address) : base(client, address) {
+            var ptr = client.DataSpaces.ReadVirtual<uint>(address + 4);
+            Value = client.DataSpaces.ReadMultiByteStringVirtual(ptr, 255);
+        }
+    }
+
     class ENodeDataMonadic(DebugClient client, uint address) : ENodeData(client, address) {
         public readonly ENode Operand = ENode.ReadPtr(client, address);
     }
@@ -175,6 +183,7 @@ namespace mwcc_inspector {
                     ENodeType.EFUNCCALL => new ENodeDataFuncCall(client, dataAddress),
                     ENodeType.EINTCONST => new ENodeDataIntVal(client, dataAddress),
                     ENodeType.EFLOATCONST => new ENodeDataFloatVal(client, dataAddress),
+                    ENodeType.ESTRINGCONST => new ENodeDataStringVal(client, dataAddress),
                     _ => new ENodeData(client, dataAddress),
                 };
             }
@@ -193,11 +202,11 @@ namespace mwcc_inspector {
                         var obj = (ENodeDataObject)Data;
                         return obj.Operand.Name.Name;
                     case ENodeType.EINTCONST:
-                        var intval = (ENodeDataIntVal)Data;
-                        return $"{intval.Value:x08}";
+                        return $"{((ENodeDataIntVal)Data).Value}";
                     case ENodeType.EFLOATCONST:
-                        var floatval = (ENodeDataFloatVal)Data;
-                        return $"{floatval.Value}";
+                        return $"{((ENodeDataFloatVal)Data).Value}";
+                    case ENodeType.ESTRINGCONST:
+                        return $"\"{((ENodeDataStringVal)Data).Value}\"";
                     case ENodeType.EFUNCCALL:
                         var funcall = (ENodeDataFuncCall)Data;
                         return $"{funcall.Func}({string.Join(", ", funcall.Args)})";
