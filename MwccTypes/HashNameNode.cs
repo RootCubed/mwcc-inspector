@@ -17,9 +17,9 @@ namespace mwcc_inspector.MwccTypes
 
     class HashNameNode : IMwccType<HashNameNode, HashNameNodeRaw>
     {
-        public int ID;
-        public short HashVal;
-        public string Name;
+        public readonly int ID;
+        public readonly short HashVal;
+        public readonly string Name;
 
         public HashNameNode(DebugClient client, uint address) : base(client, address)
         {

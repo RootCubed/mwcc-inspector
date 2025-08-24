@@ -19,13 +19,16 @@ namespace mwcc_inspector.MwccTypes
 
     class CLabel : IMwccType<CLabel, CLabelRaw>
     {
-        public Statement Stmt;
-        public HashNameNode UniqueName;
-        public HashNameNode Name;
+        public readonly Statement? Stmt;
+        public readonly HashNameNode UniqueName;
+        public readonly HashNameNode Name;
 
         public CLabel(DebugClient client, uint address) : base(client, address)
         {
-            Stmt = Statement.Read(client, RawData.StmtPtr);
+            if (RawData.StmtPtr != 0)
+            {
+                Stmt = Statement.Read(client, RawData.StmtPtr);
+            }
             UniqueName = HashNameNode.Read(client, RawData.UniqueNamePtr);
             Name = HashNameNode.Read(client, RawData.NamePtr);
         }

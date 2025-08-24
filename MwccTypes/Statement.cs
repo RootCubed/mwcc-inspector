@@ -37,8 +37,8 @@ namespace mwcc_inspector.MwccTypes
     class Statement : IMwccType<Statement, StatementRaw>
     {
         public readonly StatementType Type;
-        public ENode? Expression;
-        public CLabel? Label;
+        public readonly ENode? Expression;
+        public readonly CLabel? Label;
 
         public Statement(DebugClient client, uint address) : base(client, address)
         {
