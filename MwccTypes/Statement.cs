@@ -1,4 +1,5 @@
 ﻿using ClrDebug.DbgEng;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace mwcc_inspector.MwccTypes
@@ -29,39 +30,40 @@ namespace mwcc_inspector.MwccTypes
         [FieldOffset(0x4)]
         public byte Type;
         [FieldOffset(0xa)]
-        public long ENodePtr;
+        public uint ENodePtr;
+        [FieldOffset(0xe)]
+        public uint LabelPtr;
     }
 
-    class Statement
+    class Statement : IMwccType<Statement, StatementRaw>
     {
-        private uint NextPtr { get; }
-        public StatementType Type { get; }
-        public ENode? Expression { get; }
-        public Statement(DebugClient client, byte[] data)
+        public readonly StatementType Type;
+        public ENode? Expression;
+        public CLabel? Label;
+
+        public Statement(DebugClient client, uint address) : base(client, address)
         {
-            var raw = MemoryMarshal.Read<StatementRaw>(data);
-            NextPtr = raw.NextPtr;
-            Type = (StatementType)raw.Type;
+            Type = (StatementType)RawData.Type;
+            if (Type == StatementType.ST_LABEL)
+            {
+                Debug.Assert(RawData.LabelPtr != 0);
+                Label = CLabel.Read(client, RawData.LabelPtr);
+            }
             if (Type == StatementType.ST_EXPRESSION)
             {
-                Expression = ENode.ReadENode(client, raw.ENodePtr);
+                Debug.Assert(RawData.ENodePtr != 0);
+                Expression = ENode.Read(client, RawData.ENodePtr);
             }
         }
 
-        public static Statement ReadStatement(DebugClient client, long address)
-        {
-            byte[] buffer = client.DataSpaces.ReadVirtual(address, Marshal.SizeOf<StatementRaw>());
-            return new Statement(client, buffer);
-        }
-
-        public static List<Statement> ReadStatements(DebugClient client, long address)
+        public static List<Statement> ReadStatements(DebugClient client, uint address)
         {
             List<Statement> statements = [];
             while (address != 0)
             {
-                var stmt = ReadStatement(client, address);
+                var stmt = new Statement(client, address);
                 statements.Add(stmt);
-                address = stmt.NextPtr;
+                address = stmt.RawData.NextPtr;
             }
             return statements;
         }
