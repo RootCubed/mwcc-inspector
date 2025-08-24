@@ -49,14 +49,16 @@ class Program {
         var dbgInterface = new MwccDebugInterface();
         dbgInterface.PrepareTarget(commandLine);
 
-        dbgInterface.AddBreakpointHandler(0x005b506a, (client) => {
+        dbgInterface.AddBreakpointHandler(0x00575d05, (client) => {
             Console.WriteLine("Hit breakpoint. Dumping IR...");
             MwccTypeCache.ClearCache();
 
-            uint stmtPtr = (uint)client.Registers.GetValue(client.Registers.GetIndexByName("esi")).I64;
+            uint stmtPtr = (uint)client.Registers.GetValue(client.Registers.GetIndexByName("ebx")).I64;
 
             var statements = Statement.ReadStatements(client, stmtPtr);
             foreach (var statement in statements) {
+                string source = $":{statement.SourceOffset}";
+                Console.Write($"{source,-10}");
                 switch (statement.Type) {
                     case StatementType.ST_EXPRESSION:
                         Debug.Assert(statement.Expression != null);

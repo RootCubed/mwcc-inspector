@@ -29,12 +29,15 @@ namespace mwcc_inspector.MwccTypes {
         public uint ENodePtr;
         [FieldOffset(0xe)]
         public uint LabelPtr;
+        [FieldOffset(0x1a)]
+        public int SourceOffset;
     }
 
     class Statement : IMwccType<Statement, StatementRaw> {
         public readonly StatementType Type;
         public readonly ENode? Expression;
         public readonly CLabel? Label;
+        public readonly int SourceOffset;
 
         public Statement(DebugClient client, uint address) : base(client, address) {
             Type = RawData.Type;
@@ -44,6 +47,7 @@ namespace mwcc_inspector.MwccTypes {
             if (RawData.ENodePtr != 0) {
                 Expression = ENode.Read(client, RawData.ENodePtr);
             }
+            SourceOffset = RawData.SourceOffset;
         }
 
         public static List<Statement> ReadStatements(DebugClient client, uint address) {
