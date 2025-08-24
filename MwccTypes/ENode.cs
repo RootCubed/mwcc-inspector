@@ -154,7 +154,7 @@ namespace mwcc_inspector {
             { ENodeType.EPREINC, "++$" },
             { ENodeType.EPREDEC, "--$" },
             { ENodeType.EINDIRECT, "[$]" },
-            { ENodeType.EMONMIN, "MONMIN($)" },
+            { ENodeType.EMONMIN, "-$" },
             { ENodeType.EBINNOT, "!$" },
             { ENodeType.ELOGNOT, "!$" },
             { ENodeType.EFORCELOAD, "FORCELOAD($)" },
