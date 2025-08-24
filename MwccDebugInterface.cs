@@ -24,7 +24,7 @@ namespace mwcc_inspector
         public void PrepareTarget(string args)
         {
             var flags = DEBUG_CREATE_PROCESS.DEBUG_ONLY_THIS_PROCESS;
-            Client.CreateProcessAndAttach(0, string.Join(" ", args), flags, 0, DEBUG_ATTACH.DEFAULT);
+            Client.CreateProcessAndAttach(0, args, flags, 0, DEBUG_ATTACH.DEFAULT);
             Client.Control.WaitForEvent(DEBUG_WAIT.DEFAULT, -1);
         }
 

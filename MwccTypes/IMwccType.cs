@@ -3,10 +3,18 @@ using System.Diagnostics;
 
 namespace mwcc_inspector.MwccTypes
 {
-    internal class IMwccType<T, Raw> where T : IMwccType<T, Raw> where Raw : struct
+    internal class MwccTypeCache
     {
-        private static readonly Dictionary<uint, object> Cache = [];
+        protected static readonly Dictionary<uint, object> Cache = [];
 
+        public static void ClearCache()
+        {
+            Cache.Clear();
+        }
+    }
+
+    internal class IMwccType<T, Raw> : MwccTypeCache where T : IMwccType<T, Raw> where Raw : struct
+    {
         protected Raw RawData;
 
         protected IMwccType(DebugClient client, uint address)
@@ -17,7 +25,6 @@ namespace mwcc_inspector.MwccTypes
 
         public static T Read(DebugClient client, uint address)
         {
-            Debug.WriteLine($"Reading {typeof(T).Name} at 0x{address:X8}");
             if (Cache.TryGetValue(address, out object? value))
             {
                 return (T)value;

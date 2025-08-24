@@ -63,6 +63,8 @@ class Program
         dbgInterface.AddBreakpointHandler(0x005b506a, (client) =>
         {
             Console.WriteLine("Hit breakpoint. Dumping IR...");
+            MwccTypeCache.ClearCache();
+
             uint stmtPtr = (uint)client.Registers.GetValue(client.Registers.GetIndexByName("esi")).I64;
 
             var statements = Statement.ReadStatements(client, stmtPtr);
