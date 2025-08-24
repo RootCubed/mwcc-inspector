@@ -200,7 +200,7 @@ namespace mwcc_inspector {
                 switch (Type) {
                     case ENodeType.EOBJREF:
                         var obj = (ENodeDataObject)Data;
-                        return obj.Operand.Name.Name;
+                        return obj.Operand.ToString();
                     case ENodeType.EINTCONST:
                         return $"{((ENodeDataIntVal)Data).Value}";
                     case ENodeType.EFLOATCONST:

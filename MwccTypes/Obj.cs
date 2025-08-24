@@ -26,6 +26,8 @@ namespace mwcc_inspector.MwccTypes {
         public ObjBaseRaw Base;
         [FieldOffset(0x2)]
         public byte Datatype;
+        [FieldOffset(0x8)]
+        public uint NamespacePtr;
         [FieldOffset(0xc)]
         public uint NamePtr;
         [FieldOffset(0x10)]
@@ -38,11 +40,27 @@ namespace mwcc_inspector.MwccTypes {
 
     internal class ObjObject : IMwccType<ObjObject, ObjObjectRaw>, IObj {
         public ObjectType Type { get; }
+        public readonly NameSpace? Namespace = null;
         public readonly HashNameNode Name;
 
         public ObjObject(DebugClient client, uint address) : base(client, address) {
             Type = RawData.Base.Type;
+            if (RawData.NamespacePtr != 0) {
+                Namespace = NameSpace.Read(client, RawData.NamespacePtr);
+            }
             Name = HashNameNode.Read(client, RawData.NamePtr);
+        }
+
+        public override string ToString() {
+            NameSpace? currNS = Namespace;
+            List<string> parts = [];
+            while (currNS != null && currNS.Name != null) {
+                parts.Add(currNS.Name.Name);
+                currNS = currNS.Parent;
+            }
+            parts.Reverse();
+            parts.Add(Name.Name);
+            return string.Join("::", parts);
         }
     }
 }
