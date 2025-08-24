@@ -21,25 +21,8 @@ namespace mwcc_inspector
             Client.Control.EngineOptions = DEBUG_ENGOPT.INITIAL_BREAK | DEBUG_ENGOPT.FINAL_BREAK;
         }
 
-        public void PrepareTarget()
+        public void PrepareTarget(string args)
         {
-            string[] args = [
-                "compilers/Wii/1.1/mwcceppc.exe",
-                "-c",
-                "-proc", "gekko",
-                "-fp", "hard",
-                "-O4",
-                "-inline", "noauto",
-                "-Cpp_exceptions", "off",
-                "-enum int",
-                "-RTTI off",
-                "-ipa file",
-                "source/dol/bases/d_wipe_circle.cpp",
-                "-o", "bin/compiled/wiimj2d/dol/bases/d_wipe_circle.o",
-                "-I-",
-                "-i include"
-            ];
-
             var flags = DEBUG_CREATE_PROCESS.DEBUG_ONLY_THIS_PROCESS;
             Client.CreateProcessAndAttach(0, string.Join(" ", args), flags, 0, DEBUG_ATTACH.DEFAULT);
             Client.Control.WaitForEvent(DEBUG_WAIT.DEFAULT, -1);
