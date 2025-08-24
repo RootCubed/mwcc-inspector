@@ -19,20 +19,32 @@ dbgInterface.AddBreakpointHandler(0x0046c10e, (client) =>
         {
             case StatementType.ST_EXPRESSION:
                 Debug.Assert(statement.Expression != null);
-                Console.WriteLine(string.Join(Environment.NewLine,
-                    "Expression {",
-                    $"  {statement.Expression}",
-                    "}"
-                ));
+                Console.WriteLine($"  {statement.Expression}");
+                break;
+            case StatementType.ST_GOTO:
+                Debug.Assert(statement.Label != null);
+                Console.WriteLine($"  goto {statement.Label.Name.Name}");
+                break;
+            case StatementType.ST_IFGOTO:
+            case StatementType.ST_IFNGOTO:
+                Debug.Assert(statement.Expression != null);
+                Debug.Assert(statement.Label != null);
+                var n = (statement.Type == StatementType.ST_IFGOTO) ? "" : " not";
+                Console.WriteLine($"  if{n} {statement.Expression} goto {statement.Label.Name.Name}");
+                break;
+            case StatementType.ST_RETURN:
+                if (statement.Expression != null)
+                {
+                    Console.WriteLine($"  return {statement.Expression}");
+                }
+                else
+                {
+                    Console.WriteLine($"  return");
+                }
                 break;
             case StatementType.ST_LABEL:
                 Debug.Assert(statement.Label != null);
-                Console.WriteLine(string.Join(Environment.NewLine,
-                    "Label {",
-                    $" name='{statement.Label.Name.Name}'",
-                    $" uniqueName='{statement.Label.Name.Name}'",
-                    "}"
-                ));
+                Console.WriteLine($"{statement.Label.Name.Name}:");
                 break;
             default:
                 Console.WriteLine($"{statement.Type} {{ ... }}");

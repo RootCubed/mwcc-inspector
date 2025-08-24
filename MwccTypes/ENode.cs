@@ -15,7 +15,8 @@ namespace mwcc_inspector
         EADD, ESUB, ESHL, ESHR,
         ELESS, EGREATER, ELESSEQU, EGREATEREQU,
         EEQU, ENOTEQU,
-        EAND, EXOR, EOR, ELAND, ELOR, EASS,
+        EAND, EXOR, EOR, ELAND, ELOR,
+        EASS,
         EMULASS, EDIVASS, EMODASS, EADDASS, ESUBASS, ESHLASS, ESHRASS,
         EANDASS, EXORASS, EORASS,
         ECOMMA,
@@ -69,45 +70,76 @@ namespace mwcc_inspector
         public readonly ENodeType Type;
         public readonly ENodeData Data;
 
-        public ENode(DebugClient client, uint address) : base(client, address)
-        {
-            Type = (ENodeType)RawData.Type;
-            var dataAddress = address + 0x10;
-            Data = Type switch
-            {
-                ENodeType.EASS or
-                ENodeType.EADD or
-                ENodeType.EMUL => new ENodeDataDiadic(client, dataAddress),
-                ENodeType.EOBJREF => new ENodeDataObject(client, dataAddress),
-                ENodeType.EINTCONST => new ENodeDataIntVal(client, dataAddress),
-                _ => new ENodeData(client, dataAddress),
-            };
-        }
-
         private static readonly Dictionary<ENodeType, string> DiadicSyms = new()
         {
             { ENodeType.EASS, "=" },
             { ENodeType.EADD, "+" },
-            { ENodeType.EMUL, "*" }
+            { ENodeType.EMUL, "*" },
+            { ENodeType.EDIV, "/" },
+            { ENodeType.EMODULO, "%" },
+            { ENodeType.ESUB, "-" },
+            { ENodeType.ESHL, "<<" },
+            { ENodeType.ESHR, ">>" },
+            { ENodeType.EAND, "&" },
+            { ENodeType.EXOR, "^" },
+            { ENodeType.EOR, "|" },
+            { ENodeType.ELAND, "&&" },
+            { ENodeType.ELOR, "||" },
+            { ENodeType.ELESS, "<" },
+            { ENodeType.EGREATER, ">" },
+            { ENodeType.ELESSEQU, "<=" },
+            { ENodeType.EGREATEREQU, ">=" },
+            { ENodeType.EEQU, "==" },
+            { ENodeType.ENOTEQU, "!=" },
         };
+
+        public ENode(DebugClient client, uint address) : base(client, address)
+        {
+            Type = (ENodeType)RawData.Type;
+            var dataAddress = address + 0x10;
+            if (DiadicSyms.ContainsKey(Type))
+            {
+                Data = new ENodeDataDiadic(client, dataAddress);
+            }
+            else
+            {
+                Data = Type switch
+                {
+                    ENodeType.EINDIRECT or
+                    ENodeType.ETYPCON => new ENodeDataMonadic(client, dataAddress),
+                    ENodeType.EOBJREF => new ENodeDataObject(client, dataAddress),
+                    ENodeType.EINTCONST => new ENodeDataIntVal(client, dataAddress),
+                    _ => new ENodeData(client, dataAddress),
+                };
+            }
+        }
 
         public override string ToString()
         {
-            switch (Type)
+            if (DiadicSyms.ContainsKey(Type))
             {
-                case ENodeType.EASS:
-                case ENodeType.EADD:
-                case ENodeType.EMUL:
-                    var diadic = (ENodeDataDiadic)Data;
-                    return $"{diadic.Lhs} {DiadicSyms[Type]} {diadic.Rhs}";
-                case ENodeType.EOBJREF:
-                    var obj = (ENodeDataObject)Data;
-                    return obj.Operand.Name.Name;
-                case ENodeType.EINTCONST:
-                    var intval = (ENodeDataIntVal)Data;
-                    return $"{intval.Value:x08}";
-                default:
-                    return $"(unknown ENode type {Type})";
+                var diadic = (ENodeDataDiadic)Data;
+                return $"{diadic.Lhs} {DiadicSyms[Type]} {diadic.Rhs}";
+            }
+            else
+            {
+                switch (Type)
+                {
+                    case ENodeType.EOBJREF:
+                        var obj = (ENodeDataObject)Data;
+                        return obj.Operand.Name.Name;
+                    case ENodeType.EINTCONST:
+                        var intval = (ENodeDataIntVal)Data;
+                        return $"{intval.Value:x08}";
+                    case ENodeType.EINDIRECT:
+                        var monadic = (ENodeDataMonadic)Data;
+                        return $"INDIRECT({monadic.Operand})";
+                    case ENodeType.ETYPCON:
+                        monadic = (ENodeDataMonadic)Data;
+                        return $"TYPCON({monadic.Operand})";
+                    default:
+                        return $"(unknown ENode type {Type})";
+                }
             }
         }
     }

@@ -1,5 +1,4 @@
 ﻿using ClrDebug.DbgEng;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace mwcc_inspector.MwccTypes
@@ -44,14 +43,12 @@ namespace mwcc_inspector.MwccTypes
         public Statement(DebugClient client, uint address) : base(client, address)
         {
             Type = (StatementType)RawData.Type;
-            if (Type == StatementType.ST_LABEL)
+            if (RawData.LabelPtr != 0)
             {
-                Debug.Assert(RawData.LabelPtr != 0);
                 Label = CLabel.Read(client, RawData.LabelPtr);
             }
-            if (Type == StatementType.ST_EXPRESSION)
+            if (RawData.ENodePtr != 0)
             {
-                Debug.Assert(RawData.ENodePtr != 0);
                 Expression = ENode.Read(client, RawData.ENodePtr);
             }
         }
