@@ -7,10 +7,10 @@ Console.WriteLine("- MWCC Inspector -");
 var dbgInterface = new MwccDebugInterface();
 dbgInterface.PrepareTarget();
 
-dbgInterface.AddBreakpointHandler(0x0046c10e, (client) =>
+dbgInterface.AddBreakpointHandler(0x005b506a, (client) =>
 {
     Console.WriteLine("Hit breakpoint. Dumping IR...");
-    uint stmtPtr = (uint)client.Registers.GetValue(client.Registers.GetIndexByName("ebp")).I64;
+    uint stmtPtr = (uint)client.Registers.GetValue(client.Registers.GetIndexByName("esi")).I64;
 
     var statements = Statement.ReadStatements(client, stmtPtr);
     foreach (var statement in statements)
@@ -23,28 +23,31 @@ dbgInterface.AddBreakpointHandler(0x0046c10e, (client) =>
                 break;
             case StatementType.ST_GOTO:
                 Debug.Assert(statement.Label != null);
-                Console.WriteLine($"  goto {statement.Label.Name.Name}");
+                Console.WriteLine($"  Goto {statement.Label.Name.Name}");
                 break;
             case StatementType.ST_IFGOTO:
             case StatementType.ST_IFNGOTO:
                 Debug.Assert(statement.Expression != null);
                 Debug.Assert(statement.Label != null);
-                var n = (statement.Type == StatementType.ST_IFGOTO) ? "" : " not";
-                Console.WriteLine($"  if{n} {statement.Expression} goto {statement.Label.Name.Name}");
+                var ifStr = (statement.Type == StatementType.ST_IFGOTO) ? "If" : "IfNot";
+                Console.WriteLine($"  {ifStr} ({statement.Expression}) {statement.Label.Name.Name}");
                 break;
             case StatementType.ST_RETURN:
                 if (statement.Expression != null)
                 {
-                    Console.WriteLine($"  return {statement.Expression}");
+                    Console.WriteLine($"  Return {statement.Expression}");
                 }
                 else
                 {
-                    Console.WriteLine($"  return");
+                    Console.WriteLine($"  Return");
                 }
                 break;
             case StatementType.ST_LABEL:
                 Debug.Assert(statement.Label != null);
-                Console.WriteLine($"{statement.Label.Name.Name}:");
+                Console.WriteLine($"Label {statement.Label.Name.Name}:");
+                break;
+            case StatementType.ST_NOP:
+                Console.WriteLine($"  Nop");
                 break;
             default:
                 Console.WriteLine($"{statement.Type} {{ ... }}");
