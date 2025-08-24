@@ -70,6 +70,14 @@ namespace mwcc_inspector {
         public uint FuncTypePtr;
     }
 
+    [StructLayout(LayoutKind.Explicit, Pack = 1)]
+    struct ENodeInfoRaw {
+        [FieldOffset(0x0)]
+        public uint NodePtr;
+        [FieldOffset(0x4)]
+        public int Type;
+    }
+
     class ENodeData {
         public ENodeData(DebugClient client, uint address) { }
     }
@@ -114,6 +122,18 @@ namespace mwcc_inspector {
                 var nodePtr = client.DataSpaces.ReadVirtual<uint>(currPtr + 4);
                 Args.Add(ENode.Read(client, nodePtr));
                 currPtr = client.DataSpaces.ReadVirtual<uint>(currPtr);
+            }
+        }
+    }
+
+    class ENodeDataInfo : ENodeData {
+        public readonly int Type;
+        public readonly ENode? Ref;
+        public ENodeDataInfo(DebugClient client, uint address) : base(client, address) {
+            var rawData = client.DataSpaces.ReadVirtual<ENodeInfoRaw>(address);
+            Type = rawData.Type;
+            if (Type == 5) {
+                Ref = ENode.Read(client, rawData.NodePtr);
             }
         }
     }
@@ -181,6 +201,7 @@ namespace mwcc_inspector {
                 Data = Type switch {
                     ENodeType.EOBJREF => new ENodeDataObject(client, dataAddress),
                     ENodeType.EFUNCCALL => new ENodeDataFuncCall(client, dataAddress),
+                    ENodeType.EINFO => new ENodeDataInfo(client, dataAddress),
                     ENodeType.EINTCONST => new ENodeDataIntVal(client, dataAddress),
                     ENodeType.EFLOATCONST => new ENodeDataFloatVal(client, dataAddress),
                     ENodeType.ESTRINGCONST => new ENodeDataStringVal(client, dataAddress),
@@ -210,6 +231,12 @@ namespace mwcc_inspector {
                     case ENodeType.EFUNCCALL:
                         var funcall = (ENodeDataFuncCall)Data;
                         return $"{funcall.Func}({string.Join(", ", funcall.Args)})";
+                    case ENodeType.EINFO:
+                        var info = (ENodeDataInfo)Data;
+                        return info.Type switch {
+                            5 => $"NODE_INFO({info.Ref})",
+                            _ => $"INFO_TYPE_{info.Type}(<???>)"
+                        };
                     default:
                         return $"(unknown ENode type {Type})";
                 }
