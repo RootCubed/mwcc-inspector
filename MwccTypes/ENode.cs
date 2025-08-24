@@ -57,7 +57,7 @@ namespace mwcc_inspector {
     [StructLayout(LayoutKind.Explicit, Pack = 1)]
     struct ENodeBaseRaw {
         [FieldOffset(0x0)]
-        public byte Type;
+        public ENodeType Type;
     }
 
     [StructLayout(LayoutKind.Explicit, Pack = 1)]
@@ -163,7 +163,7 @@ namespace mwcc_inspector {
         };
 
         public ENode(DebugClient client, uint address) : base(client, address) {
-            Type = (ENodeType)RawData.Type;
+            Type = RawData.Type;
             var dataAddress = address + 0x10;
             if (DiadicSyms.ContainsKey(Type)) {
                 Data = new ENodeDataDiadic(client, dataAddress);

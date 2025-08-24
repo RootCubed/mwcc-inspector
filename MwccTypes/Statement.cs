@@ -24,7 +24,7 @@ namespace mwcc_inspector.MwccTypes {
         [FieldOffset(0x0)]
         public uint NextPtr;
         [FieldOffset(0x4)]
-        public byte Type;
+        public StatementType Type;
         [FieldOffset(0xa)]
         public uint ENodePtr;
         [FieldOffset(0xe)]
@@ -37,7 +37,7 @@ namespace mwcc_inspector.MwccTypes {
         public readonly CLabel? Label;
 
         public Statement(DebugClient client, uint address) : base(client, address) {
-            Type = (StatementType)RawData.Type;
+            Type = RawData.Type;
             if (RawData.LabelPtr != 0) {
                 Label = CLabel.Read(client, RawData.LabelPtr);
             }
