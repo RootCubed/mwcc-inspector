@@ -1,11 +1,9 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace mwcc_inspector
-{
+namespace mwcc_inspector {
 
     // See https://github.com/lordmilko/ClrDebug/blob/master/Samples/DbgEngConsole/NativeMethods.cs
-    internal class NativeMethods
-    {
+    internal class NativeMethods {
         private const string kernel32 = "kernel32.dll";
 
         [DllImport(kernel32, SetLastError = true)]

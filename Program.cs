@@ -3,24 +3,19 @@ using mwcc_inspector.MwccTypes;
 using System.CommandLine;
 using System.Diagnostics;
 
-class Program
-{
-    static int Main(string[] args)
-    {
+class Program {
+    static int Main(string[] args) {
 
-        Argument<string> mwccPath = new("mwcc_path")
-        {
+        Argument<string> mwccPath = new("mwcc_path") {
             Description = "Path to MWCC executable",
         };
 
-        Argument<string[]> mwccArgs = new("args")
-        {
+        Argument<string[]> mwccArgs = new("args") {
             Description = "Arguments passed to MWCC",
             Arity = ArgumentArity.ZeroOrMore
         };
 
-        Option<string> cwd = new("--cwd")
-        {
+        Option<string> cwd = new("--cwd") {
             Description = "Set working directory for MWCC process"
         };
 
@@ -29,20 +24,15 @@ class Program
         rootCommand.Arguments.Add(mwccArgs);
         rootCommand.Options.Add(cwd);
 
-        rootCommand.SetAction(parseResult =>
-        {
+        rootCommand.SetAction(parseResult => {
             List<string> argsList = [];
             argsList.Add(parseResult.GetRequiredValue(mwccPath));
             argsList.AddRange(parseResult.GetRequiredValue(mwccArgs));
 
-            if (parseResult.GetValue(cwd) is string userCwd)
-            {
-                if (Directory.Exists(userCwd))
-                {
+            if (parseResult.GetValue(cwd) is string userCwd) {
+                if (Directory.Exists(userCwd)) {
                     Directory.SetCurrentDirectory(userCwd);
-                }
-                else
-                {
+                } else {
                     Console.WriteLine($"Error: Specified working directory does not exist: {userCwd}");
                 }
             }
@@ -54,24 +44,20 @@ class Program
         return parseResult.Invoke();
     }
 
-    private static void RunInspector(string commandLine)
-    {
+    private static void RunInspector(string commandLine) {
 
         var dbgInterface = new MwccDebugInterface();
         dbgInterface.PrepareTarget(commandLine);
 
-        dbgInterface.AddBreakpointHandler(0x005b506a, (client) =>
-        {
+        dbgInterface.AddBreakpointHandler(0x005b506a, (client) => {
             Console.WriteLine("Hit breakpoint. Dumping IR...");
             MwccTypeCache.ClearCache();
 
             uint stmtPtr = (uint)client.Registers.GetValue(client.Registers.GetIndexByName("esi")).I64;
 
             var statements = Statement.ReadStatements(client, stmtPtr);
-            foreach (var statement in statements)
-            {
-                switch (statement.Type)
-                {
+            foreach (var statement in statements) {
+                switch (statement.Type) {
                     case StatementType.ST_EXPRESSION:
                         Debug.Assert(statement.Expression != null);
                         Console.WriteLine($"  {statement.Expression}");
@@ -88,12 +74,9 @@ class Program
                         Console.WriteLine($"  {ifStr} ({statement.Expression}) {statement.Label.Name.Name}");
                         break;
                     case StatementType.ST_RETURN:
-                        if (statement.Expression != null)
-                        {
+                        if (statement.Expression != null) {
                             Console.WriteLine($"  Return {statement.Expression}");
-                        }
-                        else
-                        {
+                        } else {
                             Console.WriteLine($"  Return");
                         }
                         break;

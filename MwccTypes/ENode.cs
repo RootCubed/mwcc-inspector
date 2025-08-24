@@ -2,10 +2,8 @@
 using mwcc_inspector.MwccTypes;
 using System.Runtime.InteropServices;
 
-namespace mwcc_inspector
-{
-    enum ENodeType : byte
-    {
+namespace mwcc_inspector {
+    enum ENodeType : byte {
         EPOSTINC, EPOSTDEC, EPREINC, EPREDEC,
         EINDIRECT,
         EMONMIN,
@@ -57,15 +55,13 @@ namespace mwcc_inspector
     }
 
     [StructLayout(LayoutKind.Explicit, Pack = 1)]
-    struct ENodeBaseRaw
-    {
+    struct ENodeBaseRaw {
         [FieldOffset(0x0)]
         public byte Type;
     }
 
     [StructLayout(LayoutKind.Explicit, Pack = 1)]
-    struct ENodeFuncCallRaw
-    {
+    struct ENodeFuncCallRaw {
         [FieldOffset(0x0)]
         public uint FuncPtr;
         [FieldOffset(0x4)]
@@ -74,48 +70,39 @@ namespace mwcc_inspector
         public uint FuncTypePtr;
     }
 
-    class ENodeData
-    {
+    class ENodeData {
         public ENodeData(DebugClient client, uint address) { }
     }
 
-    class ENodeDataIntVal(DebugClient client, uint address) : ENodeData(client, address)
-    {
+    class ENodeDataIntVal(DebugClient client, uint address) : ENodeData(client, address) {
         public readonly CInt64 Value = CInt64.Read(client, address);
     }
 
-    class ENodeDataFloatVal(DebugClient client, uint address) : ENodeData(client, address)
-    {
+    class ENodeDataFloatVal(DebugClient client, uint address) : ENodeData(client, address) {
         public readonly double Value = client.DataSpaces.ReadVirtual<double>(address);
     }
 
-    class ENodeDataMonadic(DebugClient client, uint address) : ENodeData(client, address)
-    {
+    class ENodeDataMonadic(DebugClient client, uint address) : ENodeData(client, address) {
         public readonly ENode Operand = ENode.ReadPtr(client, address);
     }
 
-    class ENodeDataDiadic(DebugClient client, uint address) : ENodeData(client, address)
-    {
+    class ENodeDataDiadic(DebugClient client, uint address) : ENodeData(client, address) {
         public readonly ENode Lhs = ENode.ReadPtr(client, address);
         public readonly ENode Rhs = ENode.ReadPtr(client, address + 4);
     }
 
-    class ENodeDataObject(DebugClient client, uint address) : ENodeData(client, address)
-    {
+    class ENodeDataObject(DebugClient client, uint address) : ENodeData(client, address) {
         public readonly ObjObject Operand = ObjObject.ReadPtr(client, address);
     }
 
-    class ENodeDataFuncCall : ENodeData
-    {
+    class ENodeDataFuncCall : ENodeData {
         public readonly ENode Func;
         public readonly List<ENode> Args = [];
-        public ENodeDataFuncCall(DebugClient client, uint address) : base(client, address)
-        {
+        public ENodeDataFuncCall(DebugClient client, uint address) : base(client, address) {
             var rawData = client.DataSpaces.ReadVirtual<ENodeFuncCallRaw>(address);
             Func = ENode.Read(client, rawData.FuncPtr);
             var currPtr = rawData.ArgsPtr;
-            while (currPtr != 0)
-            {
+            while (currPtr != 0) {
                 var nodePtr = client.DataSpaces.ReadVirtual<uint>(currPtr + 4);
                 Args.Add(ENode.Read(client, nodePtr));
                 currPtr = client.DataSpaces.ReadVirtual<uint>(currPtr);
@@ -123,8 +110,7 @@ namespace mwcc_inspector
         }
     }
 
-    class ENode : IMwccType<ENode, ENodeBaseRaw>
-    {
+    class ENode : IMwccType<ENode, ENodeBaseRaw> {
         public readonly ENodeType Type;
         public readonly ENodeData Data;
 
@@ -176,22 +162,15 @@ namespace mwcc_inspector
             { ENodeType.EBITFIELD, "BITFIELD($)" }
         };
 
-        public ENode(DebugClient client, uint address) : base(client, address)
-        {
+        public ENode(DebugClient client, uint address) : base(client, address) {
             Type = (ENodeType)RawData.Type;
             var dataAddress = address + 0x10;
-            if (DiadicSyms.ContainsKey(Type))
-            {
+            if (DiadicSyms.ContainsKey(Type)) {
                 Data = new ENodeDataDiadic(client, dataAddress);
-            }
-            else if (MonadicTypes.ContainsKey(Type))
-            {
+            } else if (MonadicTypes.ContainsKey(Type)) {
                 Data = new ENodeDataMonadic(client, dataAddress);
-            }
-            else
-            {
-                Data = Type switch
-                {
+            } else {
+                Data = Type switch {
                     ENodeType.EOBJREF => new ENodeDataObject(client, dataAddress),
                     ENodeType.EFUNCCALL => new ENodeDataFuncCall(client, dataAddress),
                     ENodeType.EINTCONST => new ENodeDataIntVal(client, dataAddress),
@@ -201,22 +180,15 @@ namespace mwcc_inspector
             }
         }
 
-        public override string ToString()
-        {
-            if (DiadicSyms.TryGetValue(Type, out string? value))
-            {
+        public override string ToString() {
+            if (DiadicSyms.TryGetValue(Type, out string? value)) {
                 var diadic = (ENodeDataDiadic)Data;
                 return $"{diadic.Lhs} {value} {diadic.Rhs}";
-            }
-            else if (MonadicTypes.TryGetValue(Type, out value))
-            {
+            } else if (MonadicTypes.TryGetValue(Type, out value)) {
                 var monadic = (ENodeDataMonadic)Data;
                 return $"{value.Replace("$", monadic.Operand.ToString())}";
-            }
-            else
-            {
-                switch (Type)
-                {
+            } else {
+                switch (Type) {
                     case ENodeType.EOBJREF:
                         var obj = (ENodeDataObject)Data;
                         return obj.Operand.Name.Name;

@@ -1,10 +1,8 @@
 ﻿using ClrDebug.DbgEng;
 using System.Runtime.InteropServices;
 
-namespace mwcc_inspector.MwccTypes
-{
-    enum StatementType : byte
-    {
+namespace mwcc_inspector.MwccTypes {
+    enum StatementType : byte {
         ST_NOP = 1,
         ST_LABEL,
         ST_GOTO,
@@ -22,8 +20,7 @@ namespace mwcc_inspector.MwccTypes
     }
 
     [StructLayout(LayoutKind.Explicit, Pack = 1)]
-    struct StatementRaw
-    {
+    struct StatementRaw {
         [FieldOffset(0x0)]
         public uint NextPtr;
         [FieldOffset(0x4)]
@@ -34,30 +31,24 @@ namespace mwcc_inspector.MwccTypes
         public uint LabelPtr;
     }
 
-    class Statement : IMwccType<Statement, StatementRaw>
-    {
+    class Statement : IMwccType<Statement, StatementRaw> {
         public readonly StatementType Type;
         public readonly ENode? Expression;
         public readonly CLabel? Label;
 
-        public Statement(DebugClient client, uint address) : base(client, address)
-        {
+        public Statement(DebugClient client, uint address) : base(client, address) {
             Type = (StatementType)RawData.Type;
-            if (RawData.LabelPtr != 0)
-            {
+            if (RawData.LabelPtr != 0) {
                 Label = CLabel.Read(client, RawData.LabelPtr);
             }
-            if (RawData.ENodePtr != 0)
-            {
+            if (RawData.ENodePtr != 0) {
                 Expression = ENode.Read(client, RawData.ENodePtr);
             }
         }
 
-        public static List<Statement> ReadStatements(DebugClient client, uint address)
-        {
+        public static List<Statement> ReadStatements(DebugClient client, uint address) {
             List<Statement> statements = [];
-            while (address != 0)
-            {
+            while (address != 0) {
                 var stmt = new Statement(client, address);
                 statements.Add(stmt);
                 address = stmt.RawData.NextPtr;

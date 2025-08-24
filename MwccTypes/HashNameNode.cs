@@ -1,11 +1,9 @@
 ﻿using ClrDebug.DbgEng;
 using System.Runtime.InteropServices;
 
-namespace mwcc_inspector.MwccTypes
-{
+namespace mwcc_inspector.MwccTypes {
     [StructLayout(LayoutKind.Explicit, Pack = 1)]
-    struct HashNameNodeRaw
-    {
+    struct HashNameNodeRaw {
         [FieldOffset(0x0)]
         public uint NextPtr;
         [FieldOffset(0x4)]
@@ -15,14 +13,12 @@ namespace mwcc_inspector.MwccTypes
         // Name not included, read separately
     }
 
-    class HashNameNode : IMwccType<HashNameNode, HashNameNodeRaw>
-    {
+    class HashNameNode : IMwccType<HashNameNode, HashNameNodeRaw> {
         public readonly int ID;
         public readonly short HashVal;
         public readonly string Name;
 
-        public HashNameNode(DebugClient client, uint address) : base(client, address)
-        {
+        public HashNameNode(DebugClient client, uint address) : base(client, address) {
             ID = RawData.ID;
             HashVal = RawData.HashVal;
 
