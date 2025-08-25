@@ -84,6 +84,8 @@ namespace mwcc_inspector {
             public override HRESULT ChangeEngineState(DEBUG_CES flags, long argument) {
                 if ((flags & DEBUG_CES.EXECUTION_STATUS) != 0) {
                     debugger.ExecutionStatus = (DEBUG_STATUS)argument;
+                } else if ((flags & DEBUG_CES.CURRENT_THREAD) != 0) {
+                    // Ignore
                 } else {
                     Console.WriteLine("WARNING: Unhandled engine state change: {0} {1}", flags, argument);
                 }
