@@ -14,11 +14,15 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
-    - name: Restore dependencies
-      run: dotnet restore
     - name: Build
-      run: dotnet publish
+      run: dotnet publish -p:DebugType=None -p:DebugSymbols=false
+    - name: Package
+      run: |
+        cd MwccInspectorUI/bin/Release/net8.0-windows/
+        Rename-Item -Path publish -NewName MwccInspector
+        Compress-Archive -Path MwccInspector/ -DestinationPath MwccInspector.zip
     - name: Publish
       uses: actions/upload-artifact@v4.6.2
       with:
-        path: bin/Release/net8.0/win-x64/publish/mwcc-inspector.exe
+        name: MwccInspector
+        path: MwccInspectorUI/bin/Release/net8.0-windows/MwccInspector.zip
