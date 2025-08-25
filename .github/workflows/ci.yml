@@ -20,9 +20,8 @@ jobs:
       run: |
         cd MwccInspectorUI/bin/Release/net8.0-windows/
         Rename-Item -Path publish -NewName MwccInspector
-        Compress-Archive -Path MwccInspector/ -DestinationPath MwccInspector.zip
     - name: Publish
       uses: actions/upload-artifact@v4.6.2
       with:
         name: MwccInspector
-        path: MwccInspectorUI/bin/Release/net8.0-windows/MwccInspector.zip
+        path: MwccInspectorUI/bin/Release/net8.0-windows/MwccInspector/
