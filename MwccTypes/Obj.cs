@@ -38,17 +38,17 @@ namespace mwcc_inspector.MwccTypes {
         ObjectType Type { get; }
     }
 
-    internal class ObjObject : IMwccType<ObjObject, ObjObjectRaw>, IObj {
+    internal class ObjObject : MwccType<ObjObjectRaw>, IObj {
         public ObjectType Type { get; }
-        public readonly NameSpace? Namespace = null;
+        public readonly NameSpace? Namespace;
         public readonly HashNameNode Name;
 
         public ObjObject(DebugClient client, uint address) : base(client, address) {
             Type = RawData.Base.Type;
             if (RawData.NamespacePtr != 0) {
-                Namespace = NameSpace.Read(client, RawData.NamespacePtr);
+                Namespace = Read<NameSpace>(client, RawData.NamespacePtr);
             }
-            Name = HashNameNode.Read(client, RawData.NamePtr);
+            Name = Read<HashNameNode>(client, RawData.NamePtr);
         }
 
         public override string ToString() {

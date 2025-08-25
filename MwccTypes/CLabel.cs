@@ -15,17 +15,17 @@ namespace mwcc_inspector.MwccTypes {
         public uint NamePtr;
     }
 
-    class CLabel : IMwccType<CLabel, CLabelRaw> {
+    class CLabel : MwccType<CLabelRaw> {
         public readonly Statement? Stmt;
         public readonly HashNameNode UniqueName;
         public readonly HashNameNode Name;
 
         public CLabel(DebugClient client, uint address) : base(client, address) {
             if (RawData.StmtPtr != 0) {
-                Stmt = Statement.Read(client, RawData.StmtPtr);
+                Stmt = Read<Statement>(client, RawData.StmtPtr);
             }
-            UniqueName = HashNameNode.Read(client, RawData.UniqueNamePtr);
-            Name = HashNameNode.Read(client, RawData.NamePtr);
+            UniqueName = Read<HashNameNode>(client, RawData.UniqueNamePtr);
+            Name = Read<HashNameNode>(client, RawData.NamePtr);
         }
     }
 }

@@ -13,7 +13,7 @@ namespace mwcc_inspector.MwccTypes {
         // Name not included, read separately
     }
 
-    class HashNameNode : IMwccType<HashNameNode, HashNameNodeRaw> {
+    class HashNameNode : MwccType<HashNameNodeRaw> {
         public readonly int ID;
         public readonly short HashVal;
         public readonly string Name;

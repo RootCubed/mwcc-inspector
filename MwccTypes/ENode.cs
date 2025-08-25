@@ -1,5 +1,6 @@
 ﻿using ClrDebug.DbgEng;
 using mwcc_inspector.MwccTypes;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace mwcc_inspector {
@@ -78,69 +79,74 @@ namespace mwcc_inspector {
         public int Type;
     }
 
-    class ENodeData {
-        public ENodeData(DebugClient client, uint address) { }
+    interface IENodeData { }
+
+    class ENodeNotImplemented : IENodeData {
+        public ENodeNotImplemented(ENodeType type) {
+            Debug.WriteLine($"Unhandled ENode type {type}");
+        }
     }
 
-    class ENodeDataIntVal(DebugClient client, uint address) : ENodeData(client, address) {
-        public readonly CInt64 Value = CInt64.Read(client, address);
+    class ENodeMwccData<T>(DebugClient client, uint address) : IENodeData {
+        public readonly T Value = client.DataSpaces.ReadVirtual<T>(address);
+    }
+    class ENodeMwccPtrData<T>(DebugClient client, uint address) : IENodeData where T : MwccCachedType {
+        protected readonly T Data = MwccCachedType.ReadPtr<T>(client, address);
     }
 
-    class ENodeDataFloatVal(DebugClient client, uint address) : ENodeData(client, address) {
-        public readonly double Value = client.DataSpaces.ReadVirtual<double>(address);
-    }
+    class ENodeDataIntVal(DebugClient client, uint address) : CInt64(client, address), IENodeData;
+    class ENodeDataFloatVal(DebugClient client, uint address) : ENodeMwccData<double>(client, address);
 
-    class ENodeDataStringVal : ENodeData {
+    class ENodeDataStringVal : IENodeData {
         public readonly string Value;
-        public ENodeDataStringVal(DebugClient client, uint address) : base(client, address) {
+        public ENodeDataStringVal(DebugClient client, uint address) {
             var ptr = client.DataSpaces.ReadVirtual<uint>(address + 4);
             Value = client.DataSpaces.ReadMultiByteStringVirtual(ptr, 255);
         }
     }
 
-    class ENodeDataMonadic(DebugClient client, uint address) : ENodeData(client, address) {
-        public readonly ENode Operand = ENode.ReadPtr(client, address);
+    class ENodeDataMonadic(DebugClient client, uint address) : IENodeData {
+        public readonly ENode Operand = MwccCachedType.ReadPtr<ENode>(client, address);
     }
 
-    class ENodeDataDiadic(DebugClient client, uint address) : ENodeData(client, address) {
-        public readonly ENode Lhs = ENode.ReadPtr(client, address);
-        public readonly ENode Rhs = ENode.ReadPtr(client, address + 4);
+    class ENodeDataDiadic(DebugClient client, uint address) : IENodeData {
+        public readonly ENode Lhs = MwccCachedType.ReadPtr<ENode>(client, address);
+        public readonly ENode Rhs = MwccCachedType.ReadPtr<ENode>(client, address + 4);
     }
 
-    class ENodeDataObject(DebugClient client, uint address) : ENodeData(client, address) {
-        public readonly ObjObject Operand = ObjObject.ReadPtr(client, address);
+    class ENodeDataObject(DebugClient client, uint address) : IENodeData {
+        public readonly ObjObject Operand = MwccCachedType.ReadPtr<ObjObject>(client, address);
     }
 
-    class ENodeDataFuncCall : ENodeData {
+    class ENodeDataFuncCall : IENodeData {
         public readonly ENode Func;
         public readonly List<ENode> Args = [];
-        public ENodeDataFuncCall(DebugClient client, uint address) : base(client, address) {
+        public ENodeDataFuncCall(DebugClient client, uint address) {
             var rawData = client.DataSpaces.ReadVirtual<ENodeFuncCallRaw>(address);
-            Func = ENode.Read(client, rawData.FuncPtr);
-            var currPtr = rawData.ArgsPtr;
-            while (currPtr != 0) {
-                var nodePtr = client.DataSpaces.ReadVirtual<uint>(currPtr + 4);
-                Args.Add(ENode.Read(client, nodePtr));
-                currPtr = client.DataSpaces.ReadVirtual<uint>(currPtr);
+            Func = MwccCachedType.Read<ENode>(client, rawData.FuncPtr);
+            var currNodeListPtr = rawData.ArgsPtr;
+            while (currNodeListPtr != 0) {
+                Args.Add(MwccCachedType.ReadPtr<ENode>(client, currNodeListPtr + 4));
+                currNodeListPtr = client.DataSpaces.ReadVirtual<uint>(currNodeListPtr);
             }
         }
     }
 
-    class ENodeDataInfo : ENodeData {
+    class ENodeDataInfo : IENodeData {
         public readonly int Type;
         public readonly ENode? Ref;
-        public ENodeDataInfo(DebugClient client, uint address) : base(client, address) {
+        public ENodeDataInfo(DebugClient client, uint address) {
             var rawData = client.DataSpaces.ReadVirtual<ENodeInfoRaw>(address);
             Type = rawData.Type;
             if (Type == 5) {
-                Ref = ENode.Read(client, rawData.NodePtr);
+                Ref = MwccCachedType.Read<ENode>(client, rawData.NodePtr);
             }
         }
     }
 
-    class ENode : IMwccType<ENode, ENodeBaseRaw> {
+    class ENode : MwccType<ENodeBaseRaw> {
         public readonly ENodeType Type;
-        public readonly ENodeData Data;
+        public readonly IENodeData Data;
 
         private static readonly Dictionary<ENodeType, string> DiadicSyms = new()
         {
@@ -205,7 +211,7 @@ namespace mwcc_inspector {
                     ENodeType.EINTCONST => new ENodeDataIntVal(client, dataAddress),
                     ENodeType.EFLOATCONST => new ENodeDataFloatVal(client, dataAddress),
                     ENodeType.ESTRINGCONST => new ENodeDataStringVal(client, dataAddress),
-                    _ => new ENodeData(client, dataAddress),
+                    _ => new ENodeNotImplemented(Type)
                 };
             }
         }

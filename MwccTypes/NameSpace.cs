@@ -10,16 +10,16 @@ namespace mwcc_inspector.MwccTypes {
         public uint NamePtr;
     }
 
-    class NameSpace : IMwccType<NameSpace, NameSpaceRaw> {
-        public readonly NameSpace? Parent = null;
-        public readonly HashNameNode? Name = null;
+    class NameSpace : MwccType<NameSpaceRaw> {
+        public readonly NameSpace? Parent;
+        public readonly HashNameNode? Name;
 
         public NameSpace(DebugClient client, uint address) : base(client, address) {
             if (RawData.ParentPtr != 0) {
-                Parent = Read(client, RawData.ParentPtr);
+                Parent = Read<NameSpace>(client, RawData.ParentPtr);
             }
             if (RawData.NamePtr != 0) {
-                Name = HashNameNode.Read(client, RawData.NamePtr);
+                Name = Read<HashNameNode>(client, RawData.NamePtr);
             }
         }
     }

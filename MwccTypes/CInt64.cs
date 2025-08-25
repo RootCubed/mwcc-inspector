@@ -11,7 +11,7 @@ namespace mwcc_inspector.MwccTypes {
         public uint Lo;
     }
 
-    internal class CInt64(DebugClient client, uint address) : IMwccType<CInt64, CInt64Raw>(client, address) {
+    internal class CInt64(DebugClient client, uint address) : MwccType<CInt64Raw>(client, address) {
         public long Value => ((long)RawData.Hi << 32) | RawData.Lo;
 
         public override string ToString() => Value.ToString();
