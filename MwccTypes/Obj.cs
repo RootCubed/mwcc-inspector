@@ -12,12 +12,22 @@ namespace mwcc_inspector.MwccTypes {
         OT_ILLEGAL
     }
 
+    enum DataType : byte {
+        DDATA,
+        DLOCAL,
+        DABSOLUTE,
+        DFUNC, DVFUNC, DINLINEFUNC,
+        DALIAS,
+        DNONLAZYPTR,
+        DLABEL
+    }
+
     [StructLayout(LayoutKind.Explicit, Pack = 1)]
     struct ObjBaseRaw {
         [FieldOffset(0x0)]
         public ObjectType Type;
         [FieldOffset(0x1)]
-        public byte Access;
+        public AccessType Access;
     }
 
     [StructLayout(LayoutKind.Explicit, Pack = 1)]
@@ -25,7 +35,7 @@ namespace mwcc_inspector.MwccTypes {
         [FieldOffset(0x0)]
         public ObjBaseRaw Base;
         [FieldOffset(0x2)]
-        public byte Datatype;
+        public DataType Datatype;
         [FieldOffset(0x8)]
         public uint NamespacePtr;
         [FieldOffset(0xc)]
@@ -35,32 +45,30 @@ namespace mwcc_inspector.MwccTypes {
     }
 
     interface IObj {
-        ObjectType Type { get; }
+        ObjectType ObjectType { get; }
     }
 
     internal class ObjObject : MwccType<ObjObjectRaw>, IObj {
-        public ObjectType Type { get; }
+        public ObjectType ObjectType { get; }
         public readonly NameSpace? Namespace;
         public readonly HashNameNode Name;
+        public readonly IType Type;
 
         public ObjObject(DebugClient client, uint address) : base(client, address) {
-            Type = RawData.Base.Type;
+            ObjectType = RawData.Base.Type;
             if (RawData.NamespacePtr != 0) {
                 Namespace = Read<NameSpace>(client, RawData.NamespacePtr);
             }
             Name = Read<HashNameNode>(client, RawData.NamePtr);
+            Type = MwccType.ReadType(client, RawData.TypePtr);
         }
 
         public override string ToString() {
-            NameSpace? currNS = Namespace;
-            List<string> parts = [];
-            while (currNS != null && currNS.Name != null) {
-                parts.Add(currNS.Name.Name);
-                currNS = currNS.Parent;
+            string ns = Namespace?.ToString() ?? "";
+            if (ns != "") {
+                ns += "::";
             }
-            parts.Reverse();
-            parts.Add(Name.Name);
-            return string.Join("::", parts);
+            return $"{ns}{Name.Name}[type={Type}]";
         }
     }
 }

@@ -22,5 +22,15 @@ namespace mwcc_inspector.MwccTypes {
                 Name = Read<HashNameNode>(client, RawData.NamePtr);
             }
         }
+        public override string ToString() {
+            if (Name == null) {
+                return "";
+            }
+            string parentStr = Parent?.ToString() ?? "";
+            if (parentStr == "") {
+                return Name.Name;
+            }
+            return $"{parentStr}::{Name.Name}";
+        }
     }
 }
