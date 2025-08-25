@@ -26,15 +26,22 @@ class Program {
 
         rootCommand.SetAction(parseResult => {
             List<string> argsList = [];
+            string mwccPathStr = parseResult.GetRequiredValue(mwccPath);
             argsList.Add(parseResult.GetRequiredValue(mwccPath));
             argsList.AddRange(parseResult.GetRequiredValue(mwccArgs));
 
             if (parseResult.GetValue(cwd) is string userCwd) {
-                if (Directory.Exists(userCwd)) {
-                    Directory.SetCurrentDirectory(userCwd);
-                } else {
+                if (!Directory.Exists(userCwd)) {
                     Console.WriteLine($"Error: Specified working directory does not exist: {userCwd}");
+                    return;
                 }
+                Directory.SetCurrentDirectory(userCwd);
+            }
+
+            string mwccFullPath = Path.Join(Directory.GetCurrentDirectory(), mwccPathStr);
+            if (!File.Exists(mwccFullPath)) {
+                Console.WriteLine($"Could not find MWCC execute at {mwccFullPath}");
+                return;
             }
 
             RunInspector(string.Join(" ", argsList));
