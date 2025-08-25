@@ -55,14 +55,89 @@ namespace mwcc_inspector {
         ECONDASS
     }
 
-    [StructLayout(LayoutKind.Explicit, Pack = 1)]
-    struct ENodeBaseRaw {
-        [FieldOffset(0x0)]
-        public ENodeType Type;
+    interface IENodeData { }
+
+    class ENodeNotImplemented : IENodeData {
+        public ENodeNotImplemented(ENodeType type) {
+            Debug.WriteLine($"Unhandled ENode type {type}");
+        }
     }
 
+    // Simple data types or wrappers
+
+    class ENodeMwccData<T>(DebugClient client, uint address) : IENodeData {
+        public readonly T Value = client.DataSpaces.ReadVirtual<T>(address);
+    }
+    class ENodeMwccDataPtr<T>(DebugClient client, uint address) : IENodeData where T : MwccCachedType {
+        public readonly T Value = MwccCachedType.ReadPtr<T>(client, address);
+    }
+
+    class ENodeDataIntVal(DebugClient client, uint address) : CInt64(client, address), IENodeData;
+    class ENodeDataFloatVal(DebugClient client, uint address) : ENodeMwccData<double>(client, address);
+    class ENodeDataMonadic(DebugClient client, uint address) : ENodeMwccDataPtr<ENode>(client, address);
+    class ENodeDataObject(DebugClient client, uint address) : ENodeMwccDataPtr<ObjObject>(client, address);
+
+    // More complex data types (using structs)
+
     [StructLayout(LayoutKind.Explicit, Pack = 1)]
-    struct ENodeFuncCallRaw {
+    struct ENodeDataStringValRaw {
+        [FieldOffset(0x0)]
+        public int Size;
+        [FieldOffset(0x4)]
+        public uint StringPtr;
+        [FieldOffset(0x8)]
+        public bool IsPascal;
+        [FieldOffset(0x9)]
+        public bool IsPacked;
+    }
+
+    class ENodeDataStringVal : MwccType<ENodeDataStringValRaw>, IENodeData {
+        public readonly string Value;
+        public ENodeDataStringVal(DebugClient client, uint address) : base(client, address) {
+            Value = client.DataSpaces.ReadMultiByteStringVirtual(RawData.StringPtr, 255);
+        }
+    }
+
+
+    [StructLayout(LayoutKind.Explicit, Pack = 1)]
+    struct ENodeDataDiadicRaw {
+        [FieldOffset(0x0)]
+        public uint LhsPtr;
+        [FieldOffset(0x4)]
+        public uint RhsPtr;
+    }
+
+    class ENodeDataDiadic : MwccType<ENodeDataDiadicRaw>, IENodeData {
+        public readonly ENode Lhs, Rhs;
+        public ENodeDataDiadic(DebugClient client, uint address) : base(client, address) {
+            Lhs = Read<ENode>(client, RawData.LhsPtr);
+            Rhs = Read<ENode>(client, RawData.RhsPtr);
+        }
+    }
+
+
+    [StructLayout(LayoutKind.Explicit, Pack = 1)]
+    struct ENodeDataCondRaw {
+        [FieldOffset(0x0)]
+        public uint CondPtr;
+        [FieldOffset(0x4)]
+        public uint LhsPtr;
+        [FieldOffset(0x8)]
+        public uint RhsPtr;
+    }
+
+    class ENodeDataCond : MwccType<ENodeDataCondRaw>, IENodeData {
+        public readonly ENode Cond, Lhs, Rhs;
+        public ENodeDataCond(DebugClient client, uint address) : base(client, address) {
+            Cond = Read<ENode>(client, RawData.CondPtr);
+            Lhs = Read<ENode>(client, RawData.LhsPtr);
+            Rhs = Read<ENode>(client, RawData.RhsPtr);
+        }
+    }
+
+
+    [StructLayout(LayoutKind.Explicit, Pack = 1)]
+    struct ENodeDataFuncCallRaw {
         [FieldOffset(0x0)]
         public uint FuncPtr;
         [FieldOffset(0x4)]
@@ -70,6 +145,28 @@ namespace mwcc_inspector {
         [FieldOffset(0x8)]
         public uint FuncTypePtr;
     }
+    [StructLayout(LayoutKind.Explicit, Pack = 1)]
+    struct ENodeListRaw {
+        [FieldOffset(0x0)]
+        public uint NextPtr;
+        [FieldOffset(0x4)]
+        public uint ENodePtr;
+    }
+
+    class ENodeDataFuncCall : MwccType<ENodeDataFuncCallRaw>, IENodeData {
+        public readonly ENode Func;
+        public readonly List<ENode> Args = [];
+        public ENodeDataFuncCall(DebugClient client, uint address) : base(client, address) {
+            Func = Read<ENode>(client, RawData.FuncPtr);
+            var currNodeListPtr = RawData.ArgsPtr;
+            while (currNodeListPtr != 0) {
+                var currNodeList = client.DataSpaces.ReadVirtual<ENodeListRaw>(currNodeListPtr);
+                Args.Add(Read<ENode>(client, currNodeList.ENodePtr));
+                currNodeListPtr = currNodeList.NextPtr;
+            }
+        }
+    }
+
 
     [StructLayout(LayoutKind.Explicit, Pack = 1)]
     struct ENodeInfoRaw {
@@ -79,69 +176,21 @@ namespace mwcc_inspector {
         public int Type;
     }
 
-    interface IENodeData { }
-
-    class ENodeNotImplemented : IENodeData {
-        public ENodeNotImplemented(ENodeType type) {
-            Debug.WriteLine($"Unhandled ENode type {type}");
-        }
-    }
-
-    class ENodeMwccData<T>(DebugClient client, uint address) : IENodeData {
-        public readonly T Value = client.DataSpaces.ReadVirtual<T>(address);
-    }
-    class ENodeMwccPtrData<T>(DebugClient client, uint address) : IENodeData where T : MwccCachedType {
-        protected readonly T Data = MwccCachedType.ReadPtr<T>(client, address);
-    }
-
-    class ENodeDataIntVal(DebugClient client, uint address) : CInt64(client, address), IENodeData;
-    class ENodeDataFloatVal(DebugClient client, uint address) : ENodeMwccData<double>(client, address);
-
-    class ENodeDataStringVal : IENodeData {
-        public readonly string Value;
-        public ENodeDataStringVal(DebugClient client, uint address) {
-            var ptr = client.DataSpaces.ReadVirtual<uint>(address + 4);
-            Value = client.DataSpaces.ReadMultiByteStringVirtual(ptr, 255);
-        }
-    }
-
-    class ENodeDataMonadic(DebugClient client, uint address) : IENodeData {
-        public readonly ENode Operand = MwccCachedType.ReadPtr<ENode>(client, address);
-    }
-
-    class ENodeDataDiadic(DebugClient client, uint address) : IENodeData {
-        public readonly ENode Lhs = MwccCachedType.ReadPtr<ENode>(client, address);
-        public readonly ENode Rhs = MwccCachedType.ReadPtr<ENode>(client, address + 4);
-    }
-
-    class ENodeDataObject(DebugClient client, uint address) : IENodeData {
-        public readonly ObjObject Operand = MwccCachedType.ReadPtr<ObjObject>(client, address);
-    }
-
-    class ENodeDataFuncCall : IENodeData {
-        public readonly ENode Func;
-        public readonly List<ENode> Args = [];
-        public ENodeDataFuncCall(DebugClient client, uint address) {
-            var rawData = client.DataSpaces.ReadVirtual<ENodeFuncCallRaw>(address);
-            Func = MwccCachedType.Read<ENode>(client, rawData.FuncPtr);
-            var currNodeListPtr = rawData.ArgsPtr;
-            while (currNodeListPtr != 0) {
-                Args.Add(MwccCachedType.ReadPtr<ENode>(client, currNodeListPtr + 4));
-                currNodeListPtr = client.DataSpaces.ReadVirtual<uint>(currNodeListPtr);
-            }
-        }
-    }
-
-    class ENodeDataInfo : IENodeData {
+    class ENodeDataInfo : MwccType<ENodeInfoRaw>, IENodeData {
         public readonly int Type;
         public readonly ENode? Ref;
-        public ENodeDataInfo(DebugClient client, uint address) {
-            var rawData = client.DataSpaces.ReadVirtual<ENodeInfoRaw>(address);
-            Type = rawData.Type;
+        public ENodeDataInfo(DebugClient client, uint address) : base(client, address) {
+            Type = RawData.Type;
             if (Type == 5) {
-                Ref = MwccCachedType.Read<ENode>(client, rawData.NodePtr);
+                Ref = Read<ENode>(client, RawData.NodePtr);
             }
         }
+    }
+
+    [StructLayout(LayoutKind.Explicit, Pack = 1)]
+    struct ENodeBaseRaw {
+        [FieldOffset(0x0)]
+        public ENodeType Type;
     }
 
     class ENode : MwccType<ENodeBaseRaw> {
@@ -208,6 +257,7 @@ namespace mwcc_inspector {
                     ENodeType.EOBJREF => new ENodeDataObject(client, dataAddress),
                     ENodeType.EFUNCCALL => new ENodeDataFuncCall(client, dataAddress),
                     ENodeType.EINFO => new ENodeDataInfo(client, dataAddress),
+                    ENodeType.ECOND => new ENodeDataCond(client, dataAddress),
                     ENodeType.EINTCONST => new ENodeDataIntVal(client, dataAddress),
                     ENodeType.EFLOATCONST => new ENodeDataFloatVal(client, dataAddress),
                     ENodeType.ESTRINGCONST => new ENodeDataStringVal(client, dataAddress),
@@ -221,13 +271,12 @@ namespace mwcc_inspector {
                 var diadic = (ENodeDataDiadic)Data;
                 return $"{diadic.Lhs} {value} {diadic.Rhs}";
             } else if (MonadicTypes.TryGetValue(Type, out value)) {
-                var monadic = (ENodeDataMonadic)Data;
-                return $"{value.Replace("$", monadic.Operand.ToString())}";
+                var monadic = ((ENodeDataMonadic)Data).Value;
+                return $"{value.Replace("$", monadic.ToString())}";
             } else {
                 switch (Type) {
                     case ENodeType.EOBJREF:
-                        var obj = (ENodeDataObject)Data;
-                        return obj.Operand.ToString();
+                        return ((ENodeDataObject)Data).Value.ToString();
                     case ENodeType.EINTCONST:
                         return $"{((ENodeDataIntVal)Data).Value}";
                     case ENodeType.EFLOATCONST:
@@ -243,6 +292,9 @@ namespace mwcc_inspector {
                             5 => $"NODE_INFO({info.Ref})",
                             _ => $"INFO_TYPE_{info.Type}(<???>)"
                         };
+                    case ENodeType.ECOND:
+                        var cond = (ENodeDataCond)Data;
+                        return $"{cond.Cond} ? {cond.Lhs} : {cond.Rhs}";
                     default:
                         return $"(unknown ENode type {Type})";
                 }
