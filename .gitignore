@@ -1,4 +1,12 @@
+# Visual Studio cache/options directory
 .vs/
+
+# Build results
 bin/
 obj/
-Properties/launchSettings.json
+
+# User-specific files
+*.user
+
+# Launch settings
+launchSettings.json
