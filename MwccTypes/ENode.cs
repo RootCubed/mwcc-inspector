@@ -227,7 +227,8 @@ namespace mwcc_inspector {
             { ENodeType.ELESSEQU, "<=" },
             { ENodeType.EGREATEREQU, ">=" },
             { ENodeType.EEQU, "==" },
-            { ENodeType.ENOTEQU, "!=" }
+            { ENodeType.ENOTEQU, "!=" },
+            { ENodeType.ECOMMA, "," }
         };
 
         private static readonly Dictionary<ENodeType, string> MonadicTypes = new()
