@@ -26,7 +26,7 @@ namespace mwcc_inspector.MwccTypes {
         [FieldOffset(0x4)]
         public StatementType Type;
         [FieldOffset(0xa)]
-        public uint ENodePtr;
+        public uint ENodePtr; // Or InlineAsmPtr, for ST_ASM
         [FieldOffset(0xe)]
         public uint LabelPtr;
         [FieldOffset(0x1a)]
@@ -36,6 +36,7 @@ namespace mwcc_inspector.MwccTypes {
     class Statement : MwccType<StatementRaw> {
         public readonly StatementType Type;
         public readonly ENode? Expression;
+        public readonly InlineAsm? Asm;
         public readonly CLabel? Label;
         public readonly int SourceOffset;
 
@@ -45,7 +46,11 @@ namespace mwcc_inspector.MwccTypes {
                 Label = Read<CLabel>(client, RawData.LabelPtr);
             }
             if (RawData.ENodePtr != 0) {
-                Expression = Read<ENode>(client, RawData.ENodePtr);
+                if (Type == StatementType.ST_ASM) {
+                    Asm = Read<InlineAsm>(client, RawData.ENodePtr);
+                } else {
+                    Expression = Read<ENode>(client, RawData.ENodePtr);
+                }
             }
             SourceOffset = RawData.SourceOffset;
         }

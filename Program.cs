@@ -93,8 +93,12 @@ class Program {
                         Debug.Assert(statement.Label != null);
                         Console.WriteLine($"Label {statement.Label.Name.Name}:");
                         break;
+                    case StatementType.ST_ASM:
+                        Debug.Assert(statement.Asm != null);
+                        Console.WriteLine($"  [asm] {statement.Asm.Opcode}");
+                        break;
                     case StatementType.ST_NOP:
-                        Console.WriteLine($"  Nop");
+                        Console.WriteLine($"  Nop {statement.Expression?.ToString()}");
                         break;
                     default:
                         Console.WriteLine($"{statement.Type} {{ ... }}");
