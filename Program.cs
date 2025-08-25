@@ -56,11 +56,18 @@ class Program {
         var dbgInterface = new MwccDebugInterface();
         dbgInterface.PrepareTarget(commandLine);
 
-        dbgInterface.AddBreakpointHandler(0x00575d05, (client) => {
-            Console.WriteLine("Hit breakpoint. Dumping IR...");
+        dbgInterface.AddBreakpointHandler(0x00592123, (client) => {
+            Console.WriteLine($"---------------------------------");
             MwccCachedType.ClearCache();
 
             uint stmtPtr = (uint)client.Registers.GetValue(client.Registers.GetIndexByName("ebx")).I64;
+            uint edi = (uint)client.Registers.GetValue(client.Registers.GetIndexByName("edi")).I64;
+            if (edi == 0) {
+                Console.WriteLine($"Function: Init-code");
+            } else {
+                ObjObject func = MwccCachedType.Read<ObjObject>(client, edi);
+                Console.WriteLine($"Function: {func}");
+            }
 
             var statements = Statement.ReadStatements(client, stmtPtr);
             foreach (var statement in statements) {
