@@ -1,7 +1,9 @@
 ﻿using ClrDebug.DbgEng;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+[assembly: InternalsVisibleTo("MwccInspectorUI")]
 
-namespace mwcc_inspector.MwccTypes {
+namespace MwccInspector.MwccTypes {
     enum StatementType : byte {
         ST_NOP = 1,
         ST_LABEL,

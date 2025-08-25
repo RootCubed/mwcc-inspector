@@ -1,8 +1,10 @@
 ﻿using ClrDebug.DbgEng;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
+[assembly: InternalsVisibleTo("MwccInspectorUI")]
 
-namespace mwcc_inspector.MwccTypes {
-    internal class MwccCachedType {
+namespace MwccInspector.MwccTypes {
+    class MwccCachedType {
         protected static readonly Dictionary<uint, object> Cache = [];
 
         protected MwccCachedType(DebugClient _, uint address) {
@@ -29,7 +31,7 @@ namespace mwcc_inspector.MwccTypes {
         }
     }
 
-    internal abstract class MwccType<Raw>(DebugClient client, uint address) : MwccCachedType(client, address) where Raw : struct {
+    abstract class MwccType<Raw>(DebugClient client, uint address) : MwccCachedType(client, address) where Raw : struct {
         protected Raw RawData = client.DataSpaces.ReadVirtual<Raw>(address);
     }
 }

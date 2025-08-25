@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace mwcc_inspector.MwccTypes {
+namespace MwccInspector.MwccTypes {
     enum TypeType : byte {
         TYPEVOID,
         TYPEINT,
@@ -108,13 +108,13 @@ namespace mwcc_inspector.MwccTypes {
         }
     }
 
-    internal class TypeVoid : IType {
+    class TypeVoid : IType {
         public override string ToString() {
             return "void";
         }
     }
 
-    internal class TypeBasicType(DebugClient client, uint address) : MwccType<TypeBasicTypeRaw>(client, address), IType {
+    class TypeBasicType(DebugClient client, uint address) : MwccType<TypeBasicTypeRaw>(client, address), IType {
 
         private readonly Dictionary<BasicType, string> BasicTypeNames = new() {
             { BasicType.IT_BOOL, "bool" },
@@ -141,7 +141,7 @@ namespace mwcc_inspector.MwccTypes {
         }
     }
 
-    internal class TypeClass : MwccType<TypeClassRaw>, IType {
+    class TypeClass : MwccType<TypeClassRaw>, IType {
         public readonly NameSpace NameSpace;
         public readonly HashNameNode ClassName;
         public TypeClass(DebugClient client, uint address) : base(client, address) {
@@ -153,8 +153,8 @@ namespace mwcc_inspector.MwccTypes {
         }
     }
 
-    internal class TypeFunc : MwccType<TypeFuncRaw>, IType {
-        internal class FuncArg : MwccType<FuncArgRaw> {
+    class TypeFunc : MwccType<TypeFuncRaw>, IType {
+        public class FuncArg : MwccType<FuncArgRaw> {
             public uint NextPtr => RawData.NextPtr;
             public readonly HashNameNode? Name;
             public readonly IType Type;
@@ -189,7 +189,7 @@ namespace mwcc_inspector.MwccTypes {
         }
     }
 
-    internal class TypePointer : MwccType<TypePointerRaw>, IType {
+    class TypePointer : MwccType<TypePointerRaw>, IType {
         public readonly IType TargetType;
         public TypePointer(DebugClient client, uint address) : base(client, address) {
             TargetType = MwccType.ReadType(client, RawData.TargetTypePtr);
@@ -199,7 +199,7 @@ namespace mwcc_inspector.MwccTypes {
         }
     }
 
-    internal static class MwccType {
+    static class MwccType {
         public static IType ReadType(DebugClient client, uint address) {
             var baseRaw = client.DataSpaces.ReadVirtual<TypeBaseRaw>(address);
             return baseRaw.Type switch {

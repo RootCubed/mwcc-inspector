@@ -1,7 +1,9 @@
 ﻿using ClrDebug.DbgEng;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+[assembly: InternalsVisibleTo("MwccInspectorUI")]
 
-namespace mwcc_inspector.MwccTypes {
+namespace MwccInspector.MwccTypes {
     enum ObjectType : byte {
         OT_ENUMCONST,
         OT_TYPE,
@@ -48,7 +50,7 @@ namespace mwcc_inspector.MwccTypes {
         ObjectType ObjectType { get; }
     }
 
-    internal class ObjObject : MwccType<ObjObjectRaw>, IObj {
+    class ObjObject : MwccType<ObjObjectRaw>, IObj {
         public ObjectType ObjectType { get; }
         public readonly NameSpace? Namespace;
         public readonly HashNameNode Name;

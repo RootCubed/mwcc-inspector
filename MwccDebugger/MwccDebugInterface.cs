@@ -2,23 +2,21 @@
 using ClrDebug.DbgEng;
 using System.Runtime.InteropServices;
 
-namespace mwcc_inspector {
-    internal class MwccDebugInterface {
+namespace MwccInspector {
+    public class MwccDebugInterface {
         protected DebugClient Client { get; set; }
-        internal DEBUG_STATUS ExecutionStatus { get; set; }
+        private DEBUG_STATUS ExecutionStatus { get; set; }
         private bool DebugOutputEnabled { get; set; } = false;
         private readonly List<(DebugBreakpoint, Action<DebugClient>)> breakpoints = [];
 
-        public MwccDebugInterface() {
+        public MwccDebugInterface(string args) {
             Client = CreateDebugClient();
 
             Client.OutputCallbacks = new OutputCallbacks(this);
             Client.EventCallbacks = new EventCallbacks(this);
 
             Client.Control.EngineOptions = DEBUG_ENGOPT.INITIAL_BREAK | DEBUG_ENGOPT.FINAL_BREAK;
-        }
 
-        public void PrepareTarget(string args) {
             var flags = DEBUG_CREATE_PROCESS.DEBUG_ONLY_THIS_PROCESS;
             Client.CreateProcessAndAttach(0, args, flags, 0, DEBUG_ATTACH.DEFAULT);
             Client.Control.WaitForEvent(DEBUG_WAIT.DEFAULT, -1);

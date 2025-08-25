@@ -1,7 +1,7 @@
 ﻿using ClrDebug.DbgEng;
 using System.Runtime.InteropServices;
 
-namespace mwcc_inspector.MwccTypes {
+namespace MwccInspector.MwccTypes {
     [StructLayout(LayoutKind.Explicit, Pack = 1)]
     struct HashNameNodeRaw {
         [FieldOffset(0x0)]

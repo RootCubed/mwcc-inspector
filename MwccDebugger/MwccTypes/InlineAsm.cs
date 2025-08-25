@@ -1,7 +1,7 @@
 ﻿using ClrDebug.DbgEng;
 using System.Runtime.InteropServices;
 
-namespace mwcc_inspector.MwccTypes {
+namespace MwccInspector.MwccTypes {
     enum Opcode : uint { };
 
     [StructLayout(LayoutKind.Explicit, Pack = 1)]

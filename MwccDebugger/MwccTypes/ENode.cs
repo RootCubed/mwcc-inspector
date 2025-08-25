@@ -1,9 +1,8 @@
 ﻿using ClrDebug.DbgEng;
-using mwcc_inspector.MwccTypes;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace mwcc_inspector {
+namespace MwccInspector.MwccTypes {
     enum ENodeType : byte {
         EPOSTINC, EPOSTDEC, EPREINC, EPREDEC,
         EINDIRECT,

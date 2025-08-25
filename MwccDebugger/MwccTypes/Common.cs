@@ -1,4 +1,4 @@
-﻿namespace mwcc_inspector.MwccTypes {
+﻿namespace MwccInspector.MwccTypes {
     enum AccessType : byte {
         ACCESSPUBLIC,
         ACCESSPRIVATE,
