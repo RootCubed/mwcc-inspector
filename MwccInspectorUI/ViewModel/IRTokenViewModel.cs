@@ -9,7 +9,7 @@ namespace MwccInspectorUI.ViewModel {
         public class IRToken(string name, MwccCachedType? data) {
             public string Name { get; } = name;
             public MwccCachedType? Data { get; } = data;
-            public string TokenType => Data?.GetType().ToString().Split(".")[^1] ?? "";
+            public string TokenType => Data?.GetType().Name ?? "";
             public Cursor HoverCursor => Data != null ? Cursors.Hand : Cursors.Arrow;
 
             public static IRToken Space = new(" ", null);
