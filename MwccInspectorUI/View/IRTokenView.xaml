@@ -47,7 +47,9 @@
                         FontFamily="Consolas"
                         Style="{DynamicResource TokenFormat}">
                     <TextBlock.InputBindings>
-                        <MouseBinding Gesture="LeftClick" Command="{Binding TokenClickCommand}" />
+                        <MouseBinding Gesture="LeftClick"
+                                      Command="{Binding DataContext.TokenClickedInternal, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                      CommandParameter="{Binding}" />
                     </TextBlock.InputBindings>
                 </TextBlock>
             </DataTemplate>

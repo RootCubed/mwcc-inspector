@@ -11,16 +11,19 @@ namespace MwccInspectorUI.ViewModel {
             public MwccCachedType? Data { get; } = data;
             public string TokenType => Data?.GetType().ToString().Split(".")[^1] ?? "";
             public Cursor HoverCursor => Data != null ? Cursors.Hand : Cursors.Arrow;
-            public RelayCommand TokenClickCommand => new(execute => {
-                Console.WriteLine($"Token {Data} clicked.");
-            });
 
             public static IRToken Space = new(" ", null);
         }
 
         public ObservableCollection<IRToken> Tokens { get; } = [];
+        public ICommand TokenClickedInternal { get; }
+
+        public event Action<IRToken>? TokenClicked;
 
         public IRTokenViewModel(Statement stmt) {
+            TokenClickedInternal = new RelayCommand(tokenObj => {
+                TokenClicked?.Invoke((IRToken)tokenObj);
+            });
             foreach (var token in MakeTokens(stmt)) {
                 Tokens.Add(token);
             }
