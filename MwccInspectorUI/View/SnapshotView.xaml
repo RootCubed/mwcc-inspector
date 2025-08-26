@@ -14,8 +14,14 @@
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0" Text="{Binding Title}" />
-        <TextBox Grid.Row="1" Text="{Binding SnapshotText, Mode=OneWay}" IsReadOnly="True" FontFamily="Consolas"
-                 TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" />
-        <!--<ListView Grid.Row="1" ItemsSource="{Binding Snapshot.Statements}" />-->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding Statements}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <local:IRTokenView DataContext="{Binding}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
     </Grid>
 </UserControl>

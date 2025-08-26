@@ -196,7 +196,7 @@ namespace MwccInspector.MwccTypes {
         public readonly ENodeType Type;
         public readonly IENodeData Data;
 
-        private static readonly Dictionary<ENodeType, string> DiadicSyms = new()
+        public static readonly Dictionary<ENodeType, string> DiadicSyms = new()
         {
             { ENodeType.EASS, "=" },
             { ENodeType.EMUL, "*" },
@@ -230,19 +230,19 @@ namespace MwccInspector.MwccTypes {
             { ENodeType.ECOMMA, "," }
         };
 
-        private static readonly Dictionary<ENodeType, string> MonadicTypes = new()
+        public static readonly Dictionary<ENodeType, (string, string)> MonadicTypes = new()
         {
-            { ENodeType.EPOSTINC, "$++" },
-            { ENodeType.EPOSTDEC, "$--" },
-            { ENodeType.EPREINC, "++$" },
-            { ENodeType.EPREDEC, "--$" },
-            { ENodeType.EINDIRECT, "[$]" },
-            { ENodeType.EMONMIN, "-$" },
-            { ENodeType.EBINNOT, "!$" },
-            { ENodeType.ELOGNOT, "!$" },
-            { ENodeType.EFORCELOAD, "FORCELOAD($)" },
-            { ENodeType.ETYPCON, "TYPCON($)" },
-            { ENodeType.EBITFIELD, "BITFIELD($)" }
+            { ENodeType.EPOSTINC, ("", "++") },
+            { ENodeType.EPOSTDEC, ("", "--") },
+            { ENodeType.EPREINC, ("++", "") },
+            { ENodeType.EPREDEC, ("--", "") },
+            { ENodeType.EINDIRECT, ("[", "]") },
+            { ENodeType.EMONMIN, ("-", "") },
+            { ENodeType.EBINNOT, ("~", "") },
+            { ENodeType.ELOGNOT, ("!", "") },
+            { ENodeType.EFORCELOAD, ("FORCELOAD(", ")") },
+            { ENodeType.ETYPCON, ("TYPCON(", ")") },
+            { ENodeType.EBITFIELD, ("BITFIELD(", ")") }
         };
 
         public ENode(DebugClient client, uint address) : base(client, address) {
@@ -267,12 +267,13 @@ namespace MwccInspector.MwccTypes {
         }
 
         public override string ToString() {
-            if (DiadicSyms.TryGetValue(Type, out string? value)) {
+            if (DiadicSyms.TryGetValue(Type, out var monadicFormat)) {
                 var diadic = (ENodeDataDiadic)Data;
-                return $"{diadic.Lhs} {value} {diadic.Rhs}";
-            } else if (MonadicTypes.TryGetValue(Type, out value)) {
+                return $"{diadic.Lhs} {monadicFormat} {diadic.Rhs}";
+            } else if (MonadicTypes.TryGetValue(Type, out var diadicFormat)) {
+                var (ls, rs) = diadicFormat;
                 var monadic = ((ENodeDataMonadic)Data).Value;
-                return $"{value.Replace("$", monadic.ToString())}";
+                return $"{ls}{monadic}{rs}";
             } else {
                 switch (Type) {
                     case ENodeType.EOBJREF:

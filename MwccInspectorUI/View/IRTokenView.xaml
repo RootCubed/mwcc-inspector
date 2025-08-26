@@ -1,0 +1,56 @@
+﻿<UserControl x:Class="MwccInspectorUI.View.IRTokenView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MwccInspectorUI.View"
+             xmlns:viewmodel="clr-namespace:MwccInspectorUI.ViewModel"
+             d:DataContext="{d:DesignInstance Type=viewmodel:IRTokenViewModel}"
+             mc:Ignorable="d" 
+             d:DesignHeight="50" d:DesignWidth="150">
+    <UserControl.Resources>
+        <Style x:Key="TokenFormat" TargetType="TextBlock">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding TokenType}" Value="Statement">
+                    <Setter Property="Foreground" Value="#9e2a06" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding TokenType}" Value="ENode">
+                    <Setter Property="Foreground" Value="#073994" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding TokenType}" Value="NameSpace">
+                    <Setter Property="Foreground" Value="#036124" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding TokenType}" Value="ObjObject">
+                    <Setter Property="Foreground" Value="#036124" />
+                </DataTrigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="TextDecorations" Value="Underline" />
+                </Trigger>
+                <DataTrigger Binding="{Binding TokenType}" Value="">
+                    <Setter Property="TextDecorations" Value="None" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+    <ItemsControl ItemsSource="{Binding Tokens}">
+        <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+                <WrapPanel />
+            </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+
+        <ItemsControl.ItemTemplate>
+            <DataTemplate>
+                <TextBlock
+                        Text="{Binding Name}"
+                        Cursor="{Binding HoverCursor}"
+                        FontFamily="Consolas"
+                        Style="{DynamicResource TokenFormat}">
+                    <TextBlock.InputBindings>
+                        <MouseBinding Gesture="LeftClick" Command="{Binding TokenClickCommand}" />
+                    </TextBlock.InputBindings>
+                </TextBlock>
+            </DataTemplate>
+        </ItemsControl.ItemTemplate>
+    </ItemsControl>
+</UserControl>
