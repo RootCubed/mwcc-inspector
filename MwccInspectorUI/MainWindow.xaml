@@ -4,9 +4,24 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MwccInspectorUI"
+        xmlns:view="clr-namespace:MwccInspectorUI.View"
+        xmlns:viewmodel="clr-namespace:MwccInspectorUI.ViewModel"
+        d:DataContext="{d:DesignInstance Type=viewmodel:MainViewModel}"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <view:SnapshotListView DataContext="{Binding Snapshots}" />
+        <Grid Grid.Column="1">
+            <Grid Visibility="{Binding Snapshots.IsSnapshotViewVisible, Converter={StaticResource BoolToVisibility}}">
+                <view:SnapshotView DataContext="{Binding Snapshots.SelectedSnapshot}" />
+            </Grid>
+            <Button Visibility="{Binding CanStartDebugger, Converter={StaticResource BoolToVisibility}}"
+                    Content="Run Debugger" HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Command="{Binding RunDebugger}" />
+        </Grid>
     </Grid>
 </Window>

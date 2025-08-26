@@ -1,86 +1,13 @@
-﻿using MwccInspector;
-using MwccInspector.MwccTypes;
+﻿using MwccInspectorUI.ViewModel;
 using System.CommandLine;
-using System.Diagnostics;
 using System.IO;
 using System.Windows;
 
 namespace MwccInspectorUI {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
     public partial class App : Application {
-        public App() {
-            ParseCommandLine();
-        }
+        public List<string> FunctionNames = [];
 
-        private static void RunInspector(string commandLine) {
-
-            var dbgInterface = new MwccDebugInterface(commandLine);
-
-            dbgInterface.AddBreakpointHandler(0x00592123, (client) => {
-                Console.WriteLine($"---------------------------------");
-                MwccCachedType.ClearCache();
-
-                uint stmtPtr = (uint)client.Registers.GetValue(client.Registers.GetIndexByName("ebx")).I64;
-                uint edi = (uint)client.Registers.GetValue(client.Registers.GetIndexByName("edi")).I64;
-                if (edi == 0) {
-                    Console.WriteLine($"Function: Init-code");
-                } else {
-                    ObjObject func = MwccCachedType.Read<ObjObject>(client, edi);
-                    Console.WriteLine($"Function: {func}");
-                }
-
-                var statements = Statement.ReadStatements(client, stmtPtr);
-                foreach (var statement in statements) {
-                    string source = $":{statement.SourceOffset}";
-                    Console.Write($"{source,-10}");
-                    switch (statement.Type) {
-                        case StatementType.ST_EXPRESSION:
-                            Debug.Assert(statement.Expression != null);
-                            Console.WriteLine($"  {statement.Expression}");
-                            break;
-                        case StatementType.ST_GOTO:
-                            Debug.Assert(statement.Label != null);
-                            Console.WriteLine($"  Goto {statement.Label.Name.Name}");
-                            break;
-                        case StatementType.ST_IFGOTO:
-                        case StatementType.ST_IFNGOTO:
-                            Debug.Assert(statement.Expression != null);
-                            Debug.Assert(statement.Label != null);
-                            var ifStr = (statement.Type == StatementType.ST_IFGOTO) ? "If" : "IfNot";
-                            Console.WriteLine($"  {ifStr} ({statement.Expression}) {statement.Label.Name.Name}");
-                            break;
-                        case StatementType.ST_RETURN:
-                            if (statement.Expression != null) {
-                                Console.WriteLine($"  Return {statement.Expression}");
-                            } else {
-                                Console.WriteLine($"  Return");
-                            }
-                            break;
-                        case StatementType.ST_LABEL:
-                            Debug.Assert(statement.Label != null);
-                            Console.WriteLine($"Label {statement.Label.Name.Name}:");
-                            break;
-                        case StatementType.ST_ASM:
-                            Debug.Assert(statement.Asm != null);
-                            Console.WriteLine($"  [asm] {statement.Asm.Opcode}");
-                            break;
-                        case StatementType.ST_NOP:
-                            Console.WriteLine($"  Nop {statement.Expression?.ToString()}");
-                            break;
-                        default:
-                            Console.WriteLine($"{statement.Type} {{ ... }}");
-                            continue;
-                    }
-                }
-            });
-
-            dbgInterface.Run();
-        }
-
-        private void ParseCommandLine() {
-
+        private void Application_Startup(object sender, StartupEventArgs e) {
             Argument<string> mwccPath = new("mwcc_path") {
                 Description = "Path to MWCC executable",
             };
@@ -119,10 +46,12 @@ namespace MwccInspectorUI {
                     return;
                 }
 
-                Task.Run(() => { RunInspector(string.Join(" ", argsList)); });
+                var vm = new MainViewModel(string.Join(" ", argsList));
+                var mainWindow = new MainWindow { DataContext = vm };
+                mainWindow.Show();
             });
 
-            var args = Environment.GetCommandLineArgs()[1..];
+            var args = e.Args;
             Console.WriteLine(string.Join(" ", args));
             ParseResult parseResult = rootCommand.Parse(args);
             parseResult.Invoke();
