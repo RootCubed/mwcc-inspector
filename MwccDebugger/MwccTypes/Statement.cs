@@ -1,4 +1,5 @@
 ﻿using ClrDebug.DbgEng;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("MwccInspectorUI")]
@@ -65,6 +66,39 @@ namespace MwccInspector.MwccTypes {
                 address = stmt.RawData.NextPtr;
             }
             return statements;
+        }
+
+        public override string ToString() {
+            switch (Type) {
+                case StatementType.ST_EXPRESSION:
+                    Debug.Assert(Expression != null);
+                    return Expression.ToString();
+                case StatementType.ST_GOTO:
+                    Debug.Assert(Label != null);
+                    return $"Goto {Label.Name.Name}";
+                case StatementType.ST_IFGOTO:
+                case StatementType.ST_IFNGOTO:
+                    Debug.Assert(Expression != null);
+                    Debug.Assert(Label != null);
+                    var ifStr = (Type == StatementType.ST_IFGOTO) ? "If" : "IfNot";
+                    return $"{ifStr} ({Expression}) {Label.Name.Name}";
+                case StatementType.ST_RETURN:
+                    if (Expression != null) {
+                        return $"Return {Expression}";
+                    } else {
+                        return "Return";
+                    }
+                case StatementType.ST_LABEL:
+                    Debug.Assert(Label != null);
+                    return $"Label {Label.Name.Name}:";
+                case StatementType.ST_ASM:
+                    Debug.Assert(Asm != null);
+                    return $"[asm] {Asm.Opcode}";
+                case StatementType.ST_NOP:
+                    return $"Nop {Expression?.ToString()}";
+                default:
+                    return $"{Type} {{ ... }}";
+            }
         }
     }
 }
