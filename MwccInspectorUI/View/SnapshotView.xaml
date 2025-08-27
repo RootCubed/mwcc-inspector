@@ -22,7 +22,7 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="300" />
             </Grid.ColumnDefinitions>
-            <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
+            <ScrollViewer Padding="5" Grid.Column="0" VerticalScrollBarVisibility="Auto">
                 <ItemsControl ItemsSource="{Binding Statements}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>

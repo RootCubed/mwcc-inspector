@@ -19,9 +19,10 @@
             <Grid Visibility="{Binding Snapshots.IsSnapshotViewVisible, Converter={StaticResource BoolToVisibility}}">
                 <view:SnapshotView DataContext="{Binding Snapshots.SelectedSnapshot}" />
             </Grid>
-            <Button Visibility="{Binding CanStartDebugger, Converter={StaticResource BoolToVisibility}}"
-                    Content="Run Debugger" HorizontalAlignment="Center" VerticalAlignment="Center"
-                    Command="{Binding RunDebugger}" />
         </Grid>
+        <Button Visibility="{Binding CanStartDebugger, Converter={StaticResource BoolToVisibility}}"
+                Content="Run Debugger" HorizontalAlignment="Center" VerticalAlignment="Center"
+                Grid.ColumnSpan="2"
+                Command="{Binding RunDebugger}" />
     </Grid>
 </Window>
