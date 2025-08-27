@@ -18,7 +18,7 @@ namespace MwccInspectorUI.View {
                 foreach (var field in value.GetType().GetFields()) {
                     Children.Add(new ObjectTreeNode(field.Name, field.GetValue(value), recursionDepth - 1));
                 }
-                DisplayValue = "";
+                DisplayValue = value.GetType().Name;
             } else {
                 DisplayValue = value?.ToString() ?? "";
             }

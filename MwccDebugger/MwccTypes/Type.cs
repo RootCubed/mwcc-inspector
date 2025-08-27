@@ -97,7 +97,7 @@ namespace MwccInspector.MwccTypes {
     }
 
     class TypeNotImplemented : IType {
-        private readonly TypeType Type;
+        public readonly TypeType Type;
         public TypeNotImplemented(TypeType type) {
             Debug.WriteLine($"Unhandled Type {type}");
             Type = type;

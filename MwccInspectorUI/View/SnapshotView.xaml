@@ -11,13 +11,16 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
-        <TextBlock Grid.Row="0" Text="{Binding Title}" />
-        <Grid Grid.Row="1">
+        <TextBlock Grid.Row="0" Text="{Binding Title}" Margin="2" FontWeight="Bold" TextAlignment="Center" />
+        <Separator Grid.Row="1" />
+        <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*" />
-                <ColumnDefinition Width="200" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="300" />
             </Grid.ColumnDefinitions>
             <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
                 <ItemsControl ItemsSource="{Binding Statements}">
@@ -28,7 +31,8 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </ScrollViewer>
-            <local:MwccTypeInspectorView Grid.Column="1" DataContext="{Binding CurrentTypeVM}" />
+            <GridSplitter Grid.Column="1" Width="2" HorizontalAlignment="Center" />
+            <local:MwccTypeInspectorView Grid.Column="2" DataContext="{Binding CurrentTypeVM}" />
         </Grid>
     </Grid>
 </UserControl>
