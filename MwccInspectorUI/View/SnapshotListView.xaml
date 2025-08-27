@@ -8,11 +8,9 @@
              d:DataContext="{d:DesignInstance Type=viewmodel:SnapshotListViewModel}"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="200">
-    <Grid>
-        <ListView
-            ItemsSource="{Binding Snapshots}"
-            DisplayMemberPath="FunctionName"
-            SelectedItem="{Binding SelectedSnapshot}"
-        />
-    </Grid>
+    <ListView
+        ItemsSource="{Binding Snapshots}"
+        DisplayMemberPath="FunctionName"
+        SelectedItem="{Binding SelectedSnapshot}"
+    />
 </UserControl>

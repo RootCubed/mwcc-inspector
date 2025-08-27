@@ -33,7 +33,7 @@ namespace MwccInspectorUI.ViewModel {
                     if (token.Data == null) {
                         return;
                     }
-                    CurrentTypeVM = new(token.Data);
+                    CurrentTypeVM = new($"Token {token.Data}", token.Data);
                 };
                 return vm;
             });

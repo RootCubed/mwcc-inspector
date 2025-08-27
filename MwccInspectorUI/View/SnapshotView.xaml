@@ -32,7 +32,14 @@
                 </ItemsControl>
             </ScrollViewer>
             <GridSplitter Grid.Column="1" Width="2" HorizontalAlignment="Center" />
-            <local:MwccTypeInspectorView Grid.Column="2" DataContext="{Binding CurrentTypeVM}" />
+            <TreeView Grid.Column="2">
+                <TreeView.ItemContainerStyle>
+                    <Style TargetType="{x:Type TreeViewItem}">
+                        <Setter Property="IsExpanded" Value="True"/>
+                    </Style>
+                </TreeView.ItemContainerStyle>
+                <local:MwccTypeInspectorView DataContext="{Binding CurrentTypeVM}" />
+            </TreeView>
         </Grid>
     </Grid>
 </UserControl>
