@@ -1,4 +1,5 @@
-﻿using MwccInspectorUI.MVVM;
+﻿using MwccInspector.MwccTypes;
+using MwccInspectorUI.MVVM;
 using static MwccInspectorUI.Model.MwccDebugger;
 using static MwccInspectorUI.ViewModel.IRTokenViewModel;
 
@@ -13,11 +14,11 @@ namespace MwccInspectorUI.ViewModel {
         public string SnapshotText => string.Join("\n", Statements.Select(s => s.ToString()));
 
 
-        public MwccTypeInspectorViewModel? _currentTypeVM = null;
-        public MwccTypeInspectorViewModel? CurrentTypeVM {
-            get { return _currentTypeVM; }
+        public MwccCachedType? _currentMwccObject = null;
+        public MwccCachedType? CurrentMwccObject {
+            get { return _currentMwccObject; }
             set {
-                _currentTypeVM = value;
+                _currentMwccObject = value;
                 OnPropertyChanged();
             }
         }
@@ -33,7 +34,7 @@ namespace MwccInspectorUI.ViewModel {
                     if (token.Data == null) {
                         return;
                     }
-                    CurrentTypeVM = new($"Token {token.Data}", token.Data);
+                    CurrentMwccObject = token.Data;
                 };
                 return vm;
             });

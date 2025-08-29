@@ -1,8 +1,8 @@
 ﻿using System.Windows.Controls;
 
 namespace MwccInspectorUI.View {
-    public partial class MwccTypeInspectorView : UserControl {
-        public MwccTypeInspectorView() {
+    public partial class MwccDataView : UserControl {
+        public MwccDataView() {
             InitializeComponent();
         }
     }

@@ -1,0 +1,51 @@
+﻿<UserControl x:Class="MwccInspectorUI.View.MwccDataView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:MwccInspectorUI.View"
+             xmlns:viewmodel="clr-namespace:MwccInspectorUI.ViewModel"
+             xmlns:mwcctypes="clr-namespace:MwccInspector.MwccTypes;assembly=MwccInspector"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             d:DataContext="{d:DesignInstance Type=mwcctypes:MwccCachedType}"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <ContentControl Content="{Binding}">
+        <ContentControl.Resources>
+            <DataTemplate DataType="{x:Type mwcctypes:ObjObject}">
+                <GroupBox Header="Object properties" Padding="2">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Namespace hierarchy" FontWeight="Bold" HorizontalAlignment="Center" Grid.Row="0" Grid.Column="0" />
+                        <TextBlock Text="Name" FontWeight="Bold" HorizontalAlignment="Center" Grid.Row="0" Grid.Column="1"/>
+                        <ItemsControl Grid.Row="1" Grid.Column="0" MaxHeight="200" ItemsSource="{Binding Namespace.Hierarchy}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <local:InlineHashNameNodeView DataContext="{Binding Name}" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <local:InlineHashNameNodeView Grid.Row="1" Grid.Column="1" DataContext="{Binding Name}" />
+                        <Separator Grid.Row="2" Grid.ColumnSpan="2" />
+                        <TextBlock Text="Type information" FontWeight="Bold" HorizontalAlignment="Center" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" />
+                        <local:MwccDataView Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" DataContext="{Binding Type}" />
+                    </Grid>
+                </GroupBox>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type mwcctypes:TypeBase}">
+                <local:MwccTypeView DataContext="{Binding}" />
+            </DataTemplate>
+        </ContentControl.Resources>
+    </ContentControl>
+</UserControl>

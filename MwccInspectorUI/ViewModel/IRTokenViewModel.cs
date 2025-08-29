@@ -153,14 +153,12 @@ namespace MwccInspectorUI.ViewModel {
         }
         private static List<IRToken> MakeTokens(NameSpace ns) {
             List<IRToken> res = [];
-            if (ns.Parent != null) {
-                res = MakeTokens(ns.Parent);
-                if (res.Count > 0) {
+            for (int i = 0; i < ns.Hierarchy.Count; i++) {
+                var curr = ns.Hierarchy[i];
+                res.Add(new(curr.Name?.Name ?? "", curr));
+                if (i != ns.Hierarchy.Count - 1) {
                     res.Add(new("::", null));
                 }
-            }
-            if (ns.Name != null) {
-                res.Add(new(ns.Name.Name, ns));
             }
             return res;
         }
