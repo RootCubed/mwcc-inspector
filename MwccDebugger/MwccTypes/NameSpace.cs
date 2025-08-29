@@ -11,12 +11,14 @@ namespace MwccInspector.MwccTypes {
     }
 
     class NameSpace : MwccType<NameSpaceRaw> {
-        public readonly NameSpace? Parent;
-        public readonly HashNameNode? Name;
+        public List<NameSpace> Hierarchy { get; } = [];
+        public HashNameNode? Name { get; }
 
         public NameSpace(DebugClient client, uint address) : base(client, address) {
             if (RawData.ParentPtr != 0) {
-                Parent = Read<NameSpace>(client, RawData.ParentPtr);
+                var parent = Read<NameSpace>(client, RawData.ParentPtr);
+                Hierarchy.AddRange(parent.Hierarchy);
+                Hierarchy.Add(this);
             }
             if (RawData.NamePtr != 0) {
                 Name = Read<HashNameNode>(client, RawData.NamePtr);
@@ -26,11 +28,7 @@ namespace MwccInspector.MwccTypes {
             if (Name == null) {
                 return "";
             }
-            string parentStr = Parent?.ToString() ?? "";
-            if (parentStr == "") {
-                return Name.Name;
-            }
-            return $"{parentStr}::{Name.Name}";
+            return string.Join("::", Hierarchy.Select(h => h.Name?.Name));
         }
     }
 }

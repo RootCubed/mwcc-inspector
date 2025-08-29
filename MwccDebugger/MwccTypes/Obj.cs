@@ -52,9 +52,9 @@ namespace MwccInspector.MwccTypes {
 
     class ObjObject : MwccType<ObjObjectRaw>, IObj {
         public ObjectType ObjectType { get; }
-        public readonly NameSpace? Namespace;
-        public readonly HashNameNode Name;
-        public readonly IType Type;
+        public NameSpace? Namespace { get; }
+        public HashNameNode Name { get; }
+        public TypeBase Type { get; }
 
         public ObjObject(DebugClient client, uint address) : base(client, address) {
             ObjectType = RawData.Base.Type;

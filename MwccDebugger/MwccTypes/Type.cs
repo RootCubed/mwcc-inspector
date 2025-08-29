@@ -1,5 +1,4 @@
 ﻿using ClrDebug.DbgEng;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace MwccInspector.MwccTypes {
@@ -92,15 +91,12 @@ namespace MwccInspector.MwccTypes {
         public uint Quals;
     }
 
-    interface IType {
-        string ToString();
-    }
-
-    class TypeNotImplemented : IType {
-        public readonly TypeType Type;
-        public TypeNotImplemented(TypeType type) {
-            Debug.WriteLine($"Unhandled Type {type}");
-            Type = type;
+    class TypeBase : MwccType<TypeBaseRaw> {
+        public TypeType Type { get; }
+        public int Size { get; }
+        public TypeBase(DebugClient client, uint address) : base(client, address) {
+            Type = RawData.Type;
+            Size = RawData.Size;
         }
 
         public override string ToString() {
@@ -108,13 +104,13 @@ namespace MwccInspector.MwccTypes {
         }
     }
 
-    class TypeVoid : IType {
+    class TypeVoid(DebugClient client, uint address) : TypeBase(client, address) {
         public override string ToString() {
             return "void";
         }
     }
 
-    class TypeBasicType(DebugClient client, uint address) : MwccType<TypeBasicTypeRaw>(client, address), IType {
+    class TypeBasicType : TypeBase {
 
         private readonly Dictionary<BasicType, string> BasicTypeNames = new() {
             { BasicType.IT_BOOL, "bool" },
@@ -136,28 +132,36 @@ namespace MwccInspector.MwccTypes {
             { BasicType.IT_LONGDOUBLE, "long double" }
         };
 
+        public BasicType BasicType { get; }
+
+        public TypeBasicType(DebugClient client, uint address) : base(client, address) {
+            var data = client.DataSpaces.ReadVirtual<TypeBasicTypeRaw>(address);
+            BasicType = data.BasicType;
+        }
+
         public override string ToString() {
-            return BasicTypeNames[RawData.BasicType];
+            return BasicTypeNames[BasicType];
         }
     }
 
-    class TypeClass : MwccType<TypeClassRaw>, IType {
-        public readonly NameSpace NameSpace;
-        public readonly HashNameNode ClassName;
+    class TypeClass : TypeBase {
+        public NameSpace NameSpace { get; }
+        public HashNameNode ClassName { get; }
         public TypeClass(DebugClient client, uint address) : base(client, address) {
-            NameSpace = Read<NameSpace>(client, RawData.NameSpacePtr);
-            ClassName = Read<HashNameNode>(client, RawData.ClassNamePtr);
+            var data = client.DataSpaces.ReadVirtual<TypeClassRaw>(address);
+            NameSpace = Read<NameSpace>(client, data.NameSpacePtr);
+            ClassName = Read<HashNameNode>(client, data.ClassNamePtr);
         }
         public override string ToString() {
             return $"class {ClassName.Name}";
         }
     }
 
-    class TypeFunc : MwccType<TypeFuncRaw>, IType {
+    class TypeFunc : TypeBase {
         public class FuncArg : MwccType<FuncArgRaw> {
             public uint NextPtr => RawData.NextPtr;
-            public readonly HashNameNode? Name;
-            public readonly IType Type;
+            public HashNameNode? Name { get; }
+            public TypeBase Type { get; }
             public FuncArg(DebugClient client, uint address) : base(client, address) {
                 if (RawData.NamePtr != 0) {
                     Name = Read<HashNameNode>(client, RawData.NamePtr);
@@ -172,16 +176,17 @@ namespace MwccInspector.MwccTypes {
             }
         }
 
-        public readonly List<FuncArg> FuncArgs = [];
-        public readonly IType FuncType;
+        public List<FuncArg> FuncArgs { get; } = [];
+        public TypeBase FuncType { get; }
         public TypeFunc(DebugClient client, uint address) : base(client, address) {
-            var argPtr = RawData.ArgsPtr;
+            var data = client.DataSpaces.ReadVirtual<TypeFuncRaw>(address);
+            var argPtr = data.ArgsPtr;
             while (argPtr != 0) {
                 var arg = Read<FuncArg>(client, argPtr);
                 FuncArgs.Add(arg);
                 argPtr = arg.NextPtr;
             }
-            FuncType = MwccType.ReadType(client, RawData.FuncTypePtr);
+            FuncType = MwccType.ReadType(client, data.FuncTypePtr);
         }
         public override string ToString() {
             var argsStr = string.Join(", ", FuncArgs);
@@ -189,10 +194,11 @@ namespace MwccInspector.MwccTypes {
         }
     }
 
-    class TypePointer : MwccType<TypePointerRaw>, IType {
-        public readonly IType TargetType;
+    class TypePointer : TypeBase {
+        public TypeBase TargetType { get; }
         public TypePointer(DebugClient client, uint address) : base(client, address) {
-            TargetType = MwccType.ReadType(client, RawData.TargetTypePtr);
+            var data = client.DataSpaces.ReadVirtual<TypePointerRaw>(address);
+            TargetType = MwccType.ReadType(client, data.TargetTypePtr);
         }
         public override string ToString() {
             return $"{TargetType}*";
@@ -200,18 +206,17 @@ namespace MwccInspector.MwccTypes {
     }
 
     static class MwccType {
-        public static IType ReadType(DebugClient client, uint address) {
+        public static TypeBase ReadType(DebugClient client, uint address) {
             var baseRaw = client.DataSpaces.ReadVirtual<TypeBaseRaw>(address);
             return baseRaw.Type switch {
-                TypeType.TYPEVOID => new TypeVoid(),
+                TypeType.TYPEVOID => new TypeVoid(client, address),
                 TypeType.TYPEINT or
                 TypeType.TYPEFLOAT => MwccCachedType.Read<TypeBasicType>(client, address),
                 TypeType.TYPECLASS => MwccCachedType.Read<TypeClass>(client, address),
                 TypeType.TYPEFUNC => MwccCachedType.Read<TypeFunc>(client, address),
                 TypeType.TYPEPOINTER => MwccCachedType.Read<TypePointer>(client, address),
-                _ => new TypeNotImplemented(baseRaw.Type),
+                _ => new TypeBase(client, address),
             };
         }
     }
-
 }
