@@ -11,18 +11,17 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0" Text="{Binding Title}" Margin="2" FontWeight="Bold" TextAlignment="Center" />
-        <Separator Grid.Row="1" />
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="300" />
             </Grid.ColumnDefinitions>
-            <ScrollViewer Padding="5" Grid.Column="0" VerticalScrollBarVisibility="Auto">
+            <ScrollViewer Grid.Column="0"
+                          Padding="5" VerticalScrollBarVisibility="Auto" Background="#090b0d">
                 <ItemsControl ItemsSource="{Binding Statements}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>

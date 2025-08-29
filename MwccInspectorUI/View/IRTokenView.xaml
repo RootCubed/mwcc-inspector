@@ -10,20 +10,19 @@
              d:DesignHeight="50" d:DesignWidth="150">
     <UserControl.Resources>
         <Style x:Key="TokenFormat" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#ffffff" />
             <Style.Triggers>
-                <!-- Colors for token highlighting (ideally I would like to use custom colors, but
-                I couldn't figure out how to define custom colors with light / dark mode support) -->
                 <DataTrigger Binding="{Binding TokenType}" Value="Statement">
-                    <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+                    <Setter Property="Foreground" Value="#e37856" />
                 </DataTrigger>
                 <DataTrigger Binding="{Binding TokenType}" Value="ENode">
-                    <Setter Property="Foreground" Value="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+                    <Setter Property="Foreground" Value="#79b8d1" />
                 </DataTrigger>
                 <DataTrigger Binding="{Binding TokenType}" Value="NameSpace">
-                    <Setter Property="Foreground" Value="{DynamicResource SystemFillColorCriticalBrush}" />
+                    <Setter Property="Foreground" Value="#3da862" />
                 </DataTrigger>
                 <DataTrigger Binding="{Binding TokenType}" Value="ObjObject">
-                    <Setter Property="Foreground" Value="{DynamicResource SystemFillColorCautionBrush}" />
+                    <Setter Property="Foreground" Value="#3da862" />
                 </DataTrigger>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="TextDecorations" Value="Underline" />
