@@ -48,6 +48,47 @@ namespace MwccInspector.MwccTypes {
     class ObjUnknown(DebugClient client, uint address) : ObjBase(client, address) { }
 
     [StructLayout(LayoutKind.Explicit, Pack = 1)]
+    struct ObjEnumConstRaw {
+        [FieldOffset(0x0)]
+        public ObjBaseRaw Base;
+        [FieldOffset(0x2)]
+        public uint NextPtr;
+        [FieldOffset(0x6)]
+        public uint NamePtr;
+        [FieldOffset(0xa)]
+        public uint TypePtr;
+        [FieldOffset(0xe)]
+        public ulong Value;
+    }
+    class ObjEnumConst : ObjBase {
+        private ObjEnumConstRaw RawSelfData;
+        public HashNameNode Name { get; }
+        public TypeBase Type { get; }
+        public CInt64 Value { get; }
+
+        public ObjEnumConst(DebugClient client, uint address) : base(client, address) {
+            RawSelfData = client.DataSpaces.ReadVirtual<ObjEnumConstRaw>(address);
+            Name = Read<HashNameNode>(client, RawSelfData.NamePtr);
+            Type = MwccType.ReadType(client, RawSelfData.TypePtr);
+            Value = Read<CInt64>(client, (uint)(address + Marshal.OffsetOf<ObjEnumConstRaw>("Value")));
+        }
+        public override string ToString() {
+            return $"{Type} {Name}";
+        }
+
+        public static List<ObjEnumConst> ReadList(DebugClient client, uint address) {
+            var currPtr = address;
+            List<ObjEnumConst> res = [];
+            while (currPtr != 0) {
+                var data = Read<ObjEnumConst>(client, currPtr);
+                res.Add(data);
+                currPtr = data.RawSelfData.NextPtr;
+            }
+            return res;
+        }
+    }
+
+    [StructLayout(LayoutKind.Explicit, Pack = 1)]
     struct ObjMemberVarRaw {
         [FieldOffset(0x0)]
         public ObjBaseRaw Base;

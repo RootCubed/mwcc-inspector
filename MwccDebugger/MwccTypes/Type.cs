@@ -103,6 +103,35 @@ namespace MwccInspector.MwccTypes {
         }
     }
 
+    [StructLayout(LayoutKind.Explicit, Pack = 1)]
+    struct TypeEnumRaw {
+        [FieldOffset(0x0)]
+        public TypeBaseRaw Base;
+        [FieldOffset(0x6)]
+        public uint NameSpacePtr;
+        [FieldOffset(0xa)]
+        public uint EnumValuesPtr;
+        [FieldOffset(0xe)]
+        public uint EnumTypePtr;
+        [FieldOffset(0x12)]
+        public uint EnumNamePtr;
+    }
+    class TypeEnum : TypeBase {
+        public HashNameNode Name { get; }
+        public NameSpace NameSpace { get; }
+        public List<ObjEnumConst> EnumValues { get; }
+        public TypeBase EnumType { get; }
+        public TypeEnum(DebugClient client, uint address) : base(client, address) {
+            var data = client.DataSpaces.ReadVirtual<TypeEnumRaw>(address);
+            Name = Read<HashNameNode>(client, data.EnumNamePtr);
+            NameSpace = Read<NameSpace>(client, data.NameSpacePtr);
+            EnumValues = ObjEnumConst.ReadList(client, data.EnumValuesPtr);
+            EnumType = MwccType.ReadType(client, data.EnumTypePtr);
+        }
+        public override string ToString() {
+            return $"enum {Name?.Name ?? "(anonymous)"}";
+        }
+    }
 
     [StructLayout(LayoutKind.Explicit, Pack = 1)]
     struct TypeStructRaw {
@@ -329,6 +358,7 @@ namespace MwccInspector.MwccTypes {
                 TypeType.TYPEVOID => new TypeVoid(client, address),
                 TypeType.TYPEINT or
                 TypeType.TYPEFLOAT => MwccCachedType.Read<TypeBasicType>(client, address),
+                TypeType.TYPEENUM => MwccCachedType.Read<TypeEnum>(client, address),
                 TypeType.TYPESTRUCT => MwccCachedType.Read<TypeStruct>(client, address),
                 TypeType.TYPECLASS => MwccCachedType.Read<TypeClass>(client, address),
                 TypeType.TYPEFUNC => MwccCachedType.Read<TypeFunc>(client, address),
