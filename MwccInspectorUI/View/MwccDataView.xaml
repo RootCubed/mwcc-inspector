@@ -24,7 +24,7 @@
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <TextBlock Grid.Column="0" Text="Namespace hierarchy" FontWeight="Bold" HorizontalAlignment="Center" />
+                            <TextBlock Grid.Column="0" Text="Namespace hierarchy" FontWeight="Bold" />
                             <ItemsControl Grid.Column="1" VerticalAlignment="Center" MaxHeight="200" ItemsSource="{Binding Namespace.Hierarchy}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
@@ -32,7 +32,7 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="Bold" HorizontalAlignment="Center" />
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="Bold" />
                             <local:InlineHashNameNodeView Grid.Row="1" Grid.Column="1" DataContext="{Binding Name}" />
                         </Grid>
                     </GroupBox>
