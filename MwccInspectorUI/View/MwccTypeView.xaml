@@ -94,8 +94,8 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <TextBlock Text="Name" FontWeight="Bold" Grid.Column="0" />
-                        <local:InlineHashNameNodeView Grid.Row="1" Grid.Column="1" DataContext="{Binding Name}" />
+                        <TextBlock Text="Name" FontWeight="Bold" />
+                        <local:InlineHashNameNodeView Grid.Column="1" DataContext="{Binding Name}" />
                         <TextBlock Text="Struct Type" FontWeight="Bold" Grid.Row="1" />
                         <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding StructType}" />
                         <TextBlock Text="Struct Flags" FontWeight="Bold" Grid.Row="2" />
