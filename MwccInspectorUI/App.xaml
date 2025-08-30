@@ -11,11 +11,30 @@
             <Style.Resources>
                 <Style TargetType="TextBlock">
                     <Setter Property="Margin"
-                            Value="2,4" />
+                            Value="2, 4" />
                     <Setter Property="VerticalAlignment"
                             Value="Center" />
                 </Style>
             </Style.Resources>
+        </Style>
+        <Style TargetType="DataGrid">
+            <Setter Property="GridLinesVisibility" Value="None" />
+            <Setter Property="IsReadOnly" Value="True" />
+        </Style>
+        <Style TargetType="DataGridCell">
+            <Setter Property="Foreground" Value="Black" />
+            <Setter Property="Margin" Value="5, 3" />
+            <Style.Resources>
+                <Style TargetType="TextBlock">
+                    <Setter Property="VerticalAlignment" Value="Center" />
+                </Style>
+            </Style.Resources>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="{x:Null}" />
+                    <Setter Property="BorderBrush" Value="{x:Null}" />
+                </Trigger>
+            </Style.Triggers>
         </Style>
     </Application.Resources>
 </Application>
