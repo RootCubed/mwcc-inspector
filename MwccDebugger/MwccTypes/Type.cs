@@ -49,18 +49,19 @@ namespace MwccInspector.MwccTypes {
         public BasicType BasicType;
     }
 
-    class TypeBase : MwccType<TypeBaseRaw> {
+    abstract class TypeBase : MwccType<TypeBaseRaw> {
         public TypeType Type { get; }
         public int Size { get; }
         public TypeBase(DebugClient client, uint address) : base(client, address) {
             Type = RawData.Type;
             Size = RawData.Size;
         }
-
         public override string ToString() {
-            return $"<unhandled type {Type}>";
+            return $"<unknown type {Type}>";
         }
     }
+
+    class TypeUnknown(DebugClient client, uint address) : TypeBase(client, address) { }
 
     class TypeVoid(DebugClient client, uint address) : TypeBase(client, address) {
         public override string ToString() {
@@ -150,7 +151,7 @@ namespace MwccInspector.MwccTypes {
                 var currPtr = address;
                 List<BaseClassInfo> res = [];
                 while (currPtr != 0) {
-                    var info = new BaseClassInfo(client, currPtr);
+                    var info = Read<BaseClassInfo>(client, currPtr);
                     res.Add(info);
                     currPtr = info.RawData.NextPtr;
                 }
@@ -263,7 +264,7 @@ namespace MwccInspector.MwccTypes {
                 TypeType.TYPECLASS => MwccCachedType.Read<TypeClass>(client, address),
                 TypeType.TYPEFUNC => MwccCachedType.Read<TypeFunc>(client, address),
                 TypeType.TYPEPOINTER => MwccCachedType.Read<TypePointer>(client, address),
-                _ => new TypeBase(client, address),
+                _ => new TypeUnknown(client, address),
             };
         }
     }
