@@ -65,7 +65,7 @@ namespace MwccInspectorUI.ViewModel {
                     return true;
                 }
             }
-            l = null;
+            l = [];
             return false;
         }
     }
