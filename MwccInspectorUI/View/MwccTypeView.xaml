@@ -8,11 +8,21 @@
              d:DataContext="{d:DesignInstance Type=mwcctypes:TypeBase}"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <GroupBox Padding="2">
-        <GroupBox.Header>
-            <TextBlock Text="{Binding Type, StringFormat=Type {0}}" />
-        </GroupBox.Header>
-        <ContentControl Content="{Binding}">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <TextBlock FontWeight="Bold" Text="Type" />
+        <TextBlock Grid.Column="1" Text="{Binding Type}" />
+        <TextBlock FontWeight="Bold" Grid.Row="1" Text="Size" />
+        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Size}" />
+        <ContentControl Grid.Row="2" Grid.ColumnSpan="2" Content="{Binding}">
             <ContentControl.Resources>
                 <DataTemplate DataType="{x:Type mwcctypes:TypeBasicType}">
                     <Grid>
@@ -57,27 +67,39 @@
                         </Grid.RowDefinitions>
                         <TextBlock Text="Return Type" FontWeight="Bold" Grid.Column="0" />
                         <TextBlock Text="{Binding FuncType}" Grid.Column="1"/>
-                        <TextBlock Margin="0, 5" Text="Arguments" FontWeight="Bold" Grid.Row="1" Grid.ColumnSpan="2"/>
-                        <ListView Grid.Row="2" Grid.ColumnSpan="2" ItemsSource="{Binding FuncArgs}">
-                            <ListView.View>
-                                <GridView>
-                                    <GridViewColumn Header="Argument Name" Width="Auto">
-                                        <GridViewColumn.CellTemplate>
+                        <TextBlock Text="Arguments" FontWeight="Bold" Grid.Row="1" Grid.ColumnSpan="2"/>
+                        <Grid Grid.Row="2" Grid.ColumnSpan="2">
+                            <DataGrid
+                                ItemsSource="{Binding FuncArgs}"
+                                AutoGenerateColumns="False"
+                                HeadersVisibility="Column">
+                                <DataGrid.Columns>
+                                    <DataGridTemplateColumn Header="Argument Name" Width="Auto">
+                                        <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <local:InlineHashNameNodeView DataContext="{Binding Path=Name}" />
                                             </DataTemplate>
-                                        </GridViewColumn.CellTemplate>
-                                    </GridViewColumn>
-                                    <GridViewColumn DisplayMemberBinding="{Binding Path=Type}" Header="Argument Type" Width="Auto"/>
-                                </GridView>
-                            </ListView.View>
-                        </ListView>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="Argument Type" Width="*">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <local:MwccTypeView DataContext="{Binding Type}" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
                     </Grid>
                 </DataTemplate>
                 <DataTemplate DataType="{x:Type mwcctypes:TypeBase}">
+                    <DataTemplate.Resources>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}" />
+                    </DataTemplate.Resources>
                     <TextBlock Text="{Binding ., StringFormat=Unhandled {0}}" Grid.Column="1"/>
                 </DataTemplate>
             </ContentControl.Resources>
         </ContentControl>
-    </GroupBox>
+    </Grid>
 </UserControl>

@@ -13,34 +13,33 @@
     <ContentControl Content="{Binding}">
         <ContentControl.Resources>
             <DataTemplate DataType="{x:Type mwcctypes:ObjObject}">
-                <GroupBox Header="Object properties" Padding="2">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <TextBlock Text="Namespace hierarchy" FontWeight="Bold" HorizontalAlignment="Center" Grid.Row="0" Grid.Column="0" />
-                        <TextBlock Text="Name" FontWeight="Bold" HorizontalAlignment="Center" Grid.Row="0" Grid.Column="1"/>
-                        <ItemsControl Grid.Row="1" Grid.Column="0" MaxHeight="200" ItemsSource="{Binding Namespace.Hierarchy}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <local:InlineHashNameNodeView DataContext="{Binding Name}" />
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                        <local:InlineHashNameNodeView Grid.Row="1" Grid.Column="1" DataContext="{Binding Name}" />
-                        <Separator Grid.Row="2" Grid.ColumnSpan="2" />
-                        <TextBlock Text="Type information" FontWeight="Bold" HorizontalAlignment="Center" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" />
+                <StackPanel>
+                    <GroupBox Header="Name">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Column="0" Text="Namespace hierarchy" FontWeight="Bold" HorizontalAlignment="Center" />
+                            <ItemsControl Grid.Column="1" VerticalAlignment="Center" MaxHeight="200" ItemsSource="{Binding Namespace.Hierarchy}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <local:InlineHashNameNodeView DataContext="{Binding Name}" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" FontWeight="Bold" HorizontalAlignment="Center" />
+                            <local:InlineHashNameNodeView Grid.Row="1" Grid.Column="1" DataContext="{Binding Name}" />
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Header="Type information">
                         <local:MwccDataView Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" DataContext="{Binding Type}" />
-                    </Grid>
-                </GroupBox>
+                    </GroupBox>
+                </StackPanel>
             </DataTemplate>
 
             <DataTemplate DataType="{x:Type mwcctypes:TypeBase}">

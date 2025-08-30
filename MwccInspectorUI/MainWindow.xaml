@@ -14,7 +14,11 @@
             <ColumnDefinition Width="200"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <view:SnapshotListView DataContext="{Binding Snapshots}" />
+        <TabControl>
+            <TabItem Header="Function Snapshots">
+                <view:SnapshotListView DataContext="{Binding Snapshots}" />
+            </TabItem>
+        </TabControl>
         <Grid Grid.Column="1">
             <Grid Visibility="{Binding Snapshots.IsSnapshotViewVisible, Converter={StaticResource BoolToVisibility}}">
                 <view:SnapshotView DataContext="{Binding Snapshots.SelectedSnapshot}" />
