@@ -160,11 +160,13 @@ namespace MwccInspector.MwccTypes {
         public NameSpace NameSpace { get; }
         public HashNameNode ClassName { get; }
         public List<BaseClassInfo> BaseClasses { get; }
+        public List<ObjMemberVar> MemberVars { get; }
         public TypeClass(DebugClient client, uint address) : base(client, address) {
             var data = client.DataSpaces.ReadVirtual<TypeClassRaw>(address);
             NameSpace = Read<NameSpace>(client, data.NameSpacePtr);
             ClassName = Read<HashNameNode>(client, data.ClassNamePtr);
             BaseClasses = BaseClassInfo.ReadList(client, data.BasesPtr);
+            MemberVars = ObjMemberVar.ReadList(client, data.MemberVarsPtr);
         }
         public override string ToString() {
             return $"class {ClassName.Name}";

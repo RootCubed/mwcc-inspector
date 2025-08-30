@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:MwccInspectorUI.View"
              xmlns:viewmodel="clr-namespace:MwccInspectorUI.ViewModel"
+             xmlns:converters="clr-namespace:MwccInspectorUI.ViewModel.Converters"
              xmlns:mwcctypes="clr-namespace:MwccInspector.MwccTypes;assembly=MwccInspector"
              d:DataContext="{d:DesignInstance Type=mwcctypes:TypeBase}"
              mc:Ignorable="d" 
@@ -56,6 +57,8 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <TextBlock Text="Namespace hierarchy" FontWeight="Bold" Grid.Column="0" />
                         <ItemsControl Grid.Column="1" VerticalAlignment="Center" MaxHeight="200" ItemsSource="{Binding NameSpace.Hierarchy}">
@@ -68,29 +71,53 @@
                         <TextBlock Text="Name" FontWeight="Bold" Grid.Row="1" />
                         <local:InlineHashNameNodeView Grid.Row="1" Grid.Column="1" DataContext="{Binding ClassName}" />
                         <TextBlock Text="Base classes" FontWeight="Bold" Grid.Row="2" Grid.ColumnSpan="2" />
-                        <Grid Grid.Row="3" Grid.ColumnSpan="2">
-                            <DataGrid
-                                ItemsSource="{Binding BaseClasses}"
-                                AutoGenerateColumns="False"
-                                HeadersVisibility="Column">
-                                <DataGrid.Columns>
-                                    <DataGridTemplateColumn Header="Name" Width="Auto">
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <local:TypeLinkView DataContext="{Binding Base}" />
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
-                                    <DataGridTemplateColumn Header="Offset" Width="*">
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <TextBlock VerticalAlignment="Center" Text="{Binding Offset}" />
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
-                                </DataGrid.Columns>
-                            </DataGrid>
-                        </Grid>
+                        <DataGrid Grid.Row="3" Grid.ColumnSpan="2"
+                                  PreviewMouseWheel="DataGrid_PreviewMouseWheel"
+                                  ItemsSource="{Binding BaseClasses}"
+                                  AutoGenerateColumns="False"
+                                  HeadersVisibility="Column">
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn Header="Name" Width="Auto">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <local:TypeLinkView DataContext="{Binding Base}" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Offset" Width="*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock VerticalAlignment="Center" Text="{Binding Offset}" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <TextBlock Text="Member variables" FontWeight="Bold" Grid.Row="4" Grid.ColumnSpan="2" />
+                        <DataGrid Grid.Row="5" Grid.ColumnSpan="2"
+                                  PreviewMouseWheel="DataGrid_PreviewMouseWheel"
+                                  ItemsSource="{Binding MemberVars}"
+                                  AutoGenerateColumns="False"
+                                  HeadersVisibility="Column">
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn Header="Type" Width="Auto">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <local:TypeLinkView DataContext="{Binding Type}" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Name" Width="*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <local:InlineHashNameNodeView DataContext="{Binding Name}" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="Access" Width="Auto" Binding="{Binding Access, Converter={StaticResource AccessTypeConverter}}" />
+                                <DataGridTextColumn Header="Offset" Width="Auto" Binding="{Binding Offset}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
                     </Grid>
                 </DataTemplate>
                 <DataTemplate DataType="{x:Type mwcctypes:TypeFunc}">
@@ -106,30 +133,29 @@
                         </Grid.RowDefinitions>
                         <TextBlock Text="Return Type" FontWeight="Bold" Grid.Column="0" />
                         <local:TypeLinkView Grid.Column="1" DataContext="{Binding FuncType}" />
-                        <TextBlock Text="Arguments" FontWeight="Bold" Grid.Row="1" Grid.ColumnSpan="2"/>
-                        <Grid Grid.Row="2" Grid.ColumnSpan="2">
-                            <DataGrid
-                                ItemsSource="{Binding FuncArgs}"
-                                AutoGenerateColumns="False"
-                                HeadersVisibility="Column">
-                                <DataGrid.Columns>
-                                    <DataGridTemplateColumn Header="Argument Name" Width="Auto">
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <local:InlineHashNameNodeView DataContext="{Binding Name}" />
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
-                                    <DataGridTemplateColumn Header="Argument Type" Width="*">
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <local:MwccTypeView DataContext="{Binding Type}" />
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
-                                </DataGrid.Columns>
-                            </DataGrid>
-                        </Grid>
+                        <TextBlock Text="Arguments" FontWeight="Bold" Grid.Row="1" Grid.ColumnSpan="2" />
+                        <DataGrid Grid.Row="2" Grid.ColumnSpan="2"
+                                  PreviewMouseWheel="DataGrid_PreviewMouseWheel"
+                                  ItemsSource="{Binding FuncArgs}"
+                                  AutoGenerateColumns="False"
+                                  HeadersVisibility="Column">
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn Header="Argument Name" Width="Auto">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <local:InlineHashNameNodeView DataContext="{Binding Name}" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Argument Type" Width="*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <local:MwccTypeView DataContext="{Binding Type}" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
                     </Grid>
                 </DataTemplate>
                 <DataTemplate DataType="{x:Type mwcctypes:TypeVoid}">
