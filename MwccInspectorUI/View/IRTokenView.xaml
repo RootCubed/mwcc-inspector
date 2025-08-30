@@ -5,8 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:MwccInspectorUI.View"
              xmlns:viewmodel="clr-namespace:MwccInspectorUI.ViewModel"
-             d:DataContext="{d:DesignInstance Type=viewmodel:IRTokenViewModel}"
              mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=viewmodel:IRTokenViewModel}" 
              d:DesignHeight="50" d:DesignWidth="150">
     <UserControl.Resources>
         <Style x:Key="TokenFormat" TargetType="TextBlock">
@@ -42,14 +42,16 @@
 
         <ItemsControl.ItemTemplate>
             <DataTemplate>
-                <TextBlock
-                        Text="{Binding Name}"
-                        Cursor="{Binding HoverCursor}"
-                        Style="{DynamicResource TokenFormat}">
+                <TextBlock Text="{Binding Name}"
+                           Cursor="{Binding HoverCursor}"
+                           Style="{DynamicResource TokenFormat}">
                     <TextBlock.InputBindings>
                         <MouseBinding Gesture="LeftClick"
-                                      Command="{Binding DataContext.TokenClickedInternal, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                      CommandParameter="{Binding}" />
+                                Command="{
+                                    Binding DataContext.TokenClickedInternal,
+                                    RelativeSource={RelativeSource AncestorType=UserControl}
+                                }"
+                                CommandParameter="{Binding}" />
                     </TextBlock.InputBindings>
                 </TextBlock>
             </DataTemplate>

@@ -10,8 +10,10 @@
         <Style TargetType="Grid">
             <Style.Resources>
                 <Style TargetType="TextBlock">
-                    <Setter Property="Margin" Value="2,4"/>
-                    <Setter Property="VerticalAlignment" Value="Center" />
+                    <Setter Property="Margin"
+                            Value="2,4" />
+                    <Setter Property="VerticalAlignment"
+                            Value="Center" />
                 </Style>
             </Style.Resources>
         </Style>
