@@ -7,9 +7,9 @@ namespace MwccInspectorUI.ViewModel.Converters {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
             if (value != null) {
                 return (AccessType)value switch {
-                    AccessType.ACCESSPUBLIC => "P",
-                    AccessType.ACCESSPRIVATE => "P",
-                    AccessType.ACCESSPROTECTED => "P",
+                    AccessType.ACCESSPUBLIC => "+",
+                    AccessType.ACCESSPRIVATE => "-",
+                    AccessType.ACCESSPROTECTED => "#",
                     _ => "-"
                 };
             }
