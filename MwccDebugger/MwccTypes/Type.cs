@@ -49,48 +49,6 @@ namespace MwccInspector.MwccTypes {
         public BasicType BasicType;
     }
 
-    [StructLayout(LayoutKind.Explicit, Pack = 1)]
-    struct TypeClassRaw {
-        [FieldOffset(0x0)]
-        public TypeBaseRaw Base;
-        [FieldOffset(0x6)]
-        public uint NameSpacePtr;
-        [FieldOffset(0xa)]
-        public uint ClassNamePtr;
-    }
-
-    [StructLayout(LayoutKind.Explicit, Pack = 1)]
-    struct FuncArgRaw {
-        [FieldOffset(0x0)]
-        public uint NextPtr;
-        [FieldOffset(0x4)]
-        public uint NamePtr;
-        [FieldOffset(0x8)]
-        public uint ExprPtr;
-        [FieldOffset(0xc)]
-        public uint TypePtr;
-    }
-
-    [StructLayout(LayoutKind.Explicit, Pack = 1)]
-    struct TypeFuncRaw {
-        [FieldOffset(0x0)]
-        public TypeBaseRaw Base;
-        [FieldOffset(0x6)]
-        public uint ArgsPtr;
-        [FieldOffset(0xe)]
-        public uint FuncTypePtr;
-    }
-
-    [StructLayout(LayoutKind.Explicit, Pack = 1)]
-    struct TypePointerRaw {
-        [FieldOffset(0x0)]
-        public TypeBaseRaw Base;
-        [FieldOffset(0x6)]
-        public uint TargetTypePtr;
-        [FieldOffset(0xa)]
-        public uint Quals;
-    }
-
     class TypeBase : MwccType<TypeBaseRaw> {
         public TypeType Type { get; }
         public int Size { get; }
@@ -144,19 +102,100 @@ namespace MwccInspector.MwccTypes {
         }
     }
 
+    [StructLayout(LayoutKind.Explicit, Pack = 1)]
+    struct TypeClassRaw {
+        [FieldOffset(0x0)]
+        public TypeBaseRaw Base;
+        [FieldOffset(0x6)]
+        public uint NameSpacePtr;
+        [FieldOffset(0xa)]
+        public uint ClassNamePtr;
+        [FieldOffset(0xe)]
+        public uint BasesPtr;
+        [FieldOffset(0x12)]
+        public uint VBasesPtr;
+        [FieldOffset(0x16)]
+        public uint MemberVarsPtr;
+        [FieldOffset(0x1a)]
+        public uint FriendsPtr;
+        [FieldOffset(0x1e)]
+        public uint VTablePtr;
+    }
+
+    [StructLayout(LayoutKind.Explicit, Pack = 1)]
+    struct TypeBaseClassListRaw {
+        [FieldOffset(0x0)]
+        public uint NextPtr;
+        [FieldOffset(0x4)]
+        public uint BasePtr;
+        [FieldOffset(0x8)]
+        public int Offset;
+        [FieldOffset(0xc)]
+        public int VOffset;
+        [FieldOffset(0x10)]
+        public AccessType AccessType;
+    }
+
     class TypeClass : TypeBase {
+        public class BaseClassInfo : MwccType<TypeBaseClassListRaw> {
+            public TypeClass Base { get; }
+            public int Offset { get; }
+            public int VOffset { get; }
+            public BaseClassInfo(DebugClient client, uint address) : base(client, address) {
+                Base = Read<TypeClass>(client, RawData.BasePtr);
+                Offset = RawData.Offset;
+                VOffset = RawData.VOffset;
+            }
+            public static List<BaseClassInfo> ReadList(DebugClient client, uint address) {
+                var currPtr = address;
+                List<BaseClassInfo> res = [];
+                while (currPtr != 0) {
+                    var info = new BaseClassInfo(client, address);
+                    res.Add(info);
+                    if (info.RawData.NextPtr == currPtr) {
+                        break;
+                    }
+                    currPtr = info.RawData.NextPtr;
+                }
+                return res;
+            }
+        };
         public NameSpace NameSpace { get; }
         public HashNameNode ClassName { get; }
+        public List<BaseClassInfo> BaseClasses { get; }
         public TypeClass(DebugClient client, uint address) : base(client, address) {
             var data = client.DataSpaces.ReadVirtual<TypeClassRaw>(address);
             NameSpace = Read<NameSpace>(client, data.NameSpacePtr);
             ClassName = Read<HashNameNode>(client, data.ClassNamePtr);
+            BaseClasses = BaseClassInfo.ReadList(client, data.BasesPtr);
         }
         public override string ToString() {
             return $"class {ClassName.Name}";
         }
     }
 
+
+    [StructLayout(LayoutKind.Explicit, Pack = 1)]
+    struct TypeFuncRaw {
+        [FieldOffset(0x0)]
+        public TypeBaseRaw Base;
+        [FieldOffset(0x6)]
+        public uint ArgsPtr;
+        [FieldOffset(0xe)]
+        public uint FuncTypePtr;
+    }
+
+    [StructLayout(LayoutKind.Explicit, Pack = 1)]
+    struct FuncArgRaw {
+        [FieldOffset(0x0)]
+        public uint NextPtr;
+        [FieldOffset(0x4)]
+        public uint NamePtr;
+        [FieldOffset(0x8)]
+        public uint ExprPtr;
+        [FieldOffset(0xc)]
+        public uint TypePtr;
+    }
     class TypeFunc : TypeBase {
         public class FuncArg : MwccType<FuncArgRaw> {
             public uint NextPtr => RawData.NextPtr;
@@ -194,6 +233,16 @@ namespace MwccInspector.MwccTypes {
         }
     }
 
+
+    [StructLayout(LayoutKind.Explicit, Pack = 1)]
+    struct TypePointerRaw {
+        [FieldOffset(0x0)]
+        public TypeBaseRaw Base;
+        [FieldOffset(0x6)]
+        public uint TargetTypePtr;
+        [FieldOffset(0xa)]
+        public uint Quals;
+    }
     class TypePointer : TypeBase {
         public TypeBase TargetType { get; }
         public TypePointer(DebugClient client, uint address) : base(client, address) {

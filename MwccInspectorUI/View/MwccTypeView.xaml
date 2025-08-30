@@ -54,6 +54,8 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <TextBlock Text="Namespace hierarchy" FontWeight="Bold" Grid.Column="0" />
                         <ItemsControl Grid.Column="1" VerticalAlignment="Center" MaxHeight="200" ItemsSource="{Binding NameSpace.Hierarchy}">
@@ -65,6 +67,30 @@
                         </ItemsControl>
                         <TextBlock Text="Name" FontWeight="Bold" Grid.Row="1" />
                         <local:InlineHashNameNodeView Grid.Row="1" Grid.Column="1" DataContext="{Binding ClassName}" />
+                        <TextBlock Text="Base classes" FontWeight="Bold" Grid.Row="2" Grid.ColumnSpan="2" />
+                        <Grid Grid.Row="3" Grid.ColumnSpan="2">
+                            <DataGrid
+                                ItemsSource="{Binding BaseClasses}"
+                                AutoGenerateColumns="False"
+                                HeadersVisibility="Column">
+                                <DataGrid.Columns>
+                                    <DataGridTemplateColumn Header="Name" Width="Auto">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <local:TypeLinkView DataContext="{Binding Base}" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="Offset" Width="*">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock VerticalAlignment="Center" Text="{Binding Offset}" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
                     </Grid>
                 </DataTemplate>
                 <DataTemplate DataType="{x:Type mwcctypes:TypeFunc}">
@@ -90,7 +116,7 @@
                                     <DataGridTemplateColumn Header="Argument Name" Width="Auto">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
-                                                <local:InlineHashNameNodeView DataContext="{Binding Path=Name}" />
+                                                <local:InlineHashNameNodeView DataContext="{Binding Name}" />
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
