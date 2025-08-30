@@ -23,6 +23,15 @@ namespace MwccInspectorUI.ViewModel {
             }
         }
 
+        public MwccCachedType? _currentMwccType = null;
+        public MwccCachedType? CurrentMwccType {
+            get { return _currentMwccType; }
+            set {
+                _currentMwccType = value;
+                OnPropertyChanged();
+            }
+        }
+
         public SnapshotViewModel(Snapshot snapshot) {
             Statements = snapshot.Statements.ConvertAll(s => {
                 var vm = new IRTokenViewModel(s);
@@ -39,6 +48,10 @@ namespace MwccInspectorUI.ViewModel {
                 return vm;
             });
             FunctionName = snapshot.FunctionName;
+        }
+
+        public void OnTypeClicked(MwccCachedType type) {
+            CurrentMwccType = type;
         }
     }
 }

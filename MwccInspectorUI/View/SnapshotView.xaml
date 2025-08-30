@@ -8,6 +8,11 @@
              d:DataContext="{d:DesignInstance Type=viewmodel:SnapshotViewModel}"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.CommandBindings>
+        <CommandBinding
+            Command="{x:Static viewmodel:SnapshotCommands.TypeClicked}"
+            Executed="CommandBinding_TypeClicked" />
+    </UserControl.CommandBindings>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -29,12 +34,25 @@
             </ItemsControl>
         </ScrollViewer>
         <GridSplitter Grid.Column="1" Grid.RowSpan="2" Width="2" HorizontalAlignment="Center" />
-        <TabControl Grid.Column="2" Grid.RowSpan="2">
-            <TabItem Header="Token inspector">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <local:MwccDataView Grid.RowSpan="2" Grid.Column="2" DataContext="{Binding CurrentMwccObject}" />
-                </ScrollViewer>
-            </TabItem>
-        </TabControl>
+        <Grid Grid.Column="2" Grid.RowSpan="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="2*" />
+                <RowDefinition Height="1*" />
+            </Grid.RowDefinitions>
+            <TabControl>
+                <TabItem Header="Token inspector">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <local:MwccDataView DataContext="{Binding CurrentMwccObject}" />
+                    </ScrollViewer>
+                </TabItem>
+            </TabControl>
+            <TabControl Grid.Row="1" TabStripPlacement="Bottom">
+                <TabItem Header="Type inspector">
+                    <ScrollViewer VerticalAlignment="Top" VerticalScrollBarVisibility="Auto">
+                        <local:MwccDataView DataContext="{Binding CurrentMwccType}" />
+                    </ScrollViewer>
+                </TabItem>
+            </TabControl>
+        </Grid>
     </Grid>
 </UserControl>
