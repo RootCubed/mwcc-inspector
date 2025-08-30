@@ -10,19 +10,19 @@
              d:DesignHeight="50" d:DesignWidth="150">
     <UserControl.Resources>
         <Style x:Key="TokenFormat" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#ffffff" />
+            <Setter Property="FontFamily" Value="Consolas" />
             <Style.Triggers>
                 <DataTrigger Binding="{Binding TokenType}" Value="Statement">
-                    <Setter Property="Foreground" Value="#e37856" />
+                    <Setter Property="Foreground" Value="#7d260a" />
                 </DataTrigger>
                 <DataTrigger Binding="{Binding TokenType}" Value="ENode">
-                    <Setter Property="Foreground" Value="#79b8d1" />
+                    <Setter Property="Foreground" Value="#03428a" />
                 </DataTrigger>
                 <DataTrigger Binding="{Binding TokenType}" Value="NameSpace">
-                    <Setter Property="Foreground" Value="#3da862" />
+                    <Setter Property="Foreground" Value="#025420" />
                 </DataTrigger>
                 <DataTrigger Binding="{Binding TokenType}" Value="ObjObject">
-                    <Setter Property="Foreground" Value="#3da862" />
+                    <Setter Property="Foreground" Value="#025420" />
                 </DataTrigger>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="TextDecorations" Value="Underline" />
@@ -33,7 +33,7 @@
             </Style.Triggers>
         </Style>
     </UserControl.Resources>
-    <ItemsControl ItemsSource="{Binding Tokens}">
+    <ItemsControl ItemsSource="{Binding Tokens}" Padding="5,1">
         <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
                 <WrapPanel />
@@ -45,7 +45,6 @@
                 <TextBlock
                         Text="{Binding Name}"
                         Cursor="{Binding HoverCursor}"
-                        FontFamily="Consolas"
                         Style="{DynamicResource TokenFormat}">
                     <TextBlock.InputBindings>
                         <MouseBinding Gesture="LeftClick"

@@ -11,6 +11,7 @@
     <ListView
         ItemsSource="{Binding Snapshots}"
         DisplayMemberPath="FunctionName"
+        BorderThickness="0"
         SelectedItem="{Binding SelectedSnapshot}"
     />
 </UserControl>
