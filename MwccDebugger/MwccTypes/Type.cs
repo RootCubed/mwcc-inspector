@@ -37,7 +37,7 @@ namespace MwccInspector.MwccTypes {
     struct TypeBaseRaw {
         [FieldOffset(0x0)]
         public TypeType Type;
-        [FieldOffset(0x1)]
+        [FieldOffset(0x2)]
         public int Size;
     }
 
