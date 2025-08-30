@@ -16,6 +16,9 @@ namespace MwccInspector.MwccTypes {
         }
 
         public static T Read<T>(DebugClient client, uint address) where T : MwccCachedType {
+            if (address == 0) {
+                throw new ArgumentException("Address must not be null", "address");
+            }
             if (Cache.TryGetValue(address, out object? value)) {
                 return (T)value;
             }
