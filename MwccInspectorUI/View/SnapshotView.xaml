@@ -47,7 +47,7 @@
                     </ScrollViewer>
                 </TabItem>
             </TabControl>
-            <GridSplitter Grid.Row="1" Height="2" ResizeDirection="Columns" HorizontalAlignment="Stretch" />
+            <GridSplitter Grid.Row="1" Height="2" ResizeDirection="Rows" HorizontalAlignment="Stretch" />
             <TabControl Grid.Row="2" TabStripPlacement="Bottom">
                 <TabItem Header="Type inspector">
                     <ScrollViewer VerticalAlignment="Top" VerticalScrollBarVisibility="Auto">
