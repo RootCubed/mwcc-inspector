@@ -150,11 +150,8 @@ namespace MwccInspector.MwccTypes {
                 var currPtr = address;
                 List<BaseClassInfo> res = [];
                 while (currPtr != 0) {
-                    var info = new BaseClassInfo(client, address);
+                    var info = new BaseClassInfo(client, currPtr);
                     res.Add(info);
-                    if (info.RawData.NextPtr == currPtr) {
-                        break;
-                    }
                     currPtr = info.RawData.NextPtr;
                 }
                 return res;
