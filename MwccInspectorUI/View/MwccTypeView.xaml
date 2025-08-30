@@ -46,6 +46,51 @@
                         <local:TypeLinkView Grid.Column="1" DataContext="{Binding TargetType}" />
                     </Grid>
                 </DataTemplate>
+                <DataTemplate DataType="{x:Type mwcctypes:TypeStruct}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Name" FontWeight="Bold" Grid.Column="0" />
+                        <local:InlineHashNameNodeView Grid.Row="1" Grid.Column="1" DataContext="{Binding Name}" />
+                        <TextBlock Text="Struct Type" FontWeight="Bold" Grid.Row="1" />
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding StructType}" />
+                        <TextBlock Text="Struct Flags" FontWeight="Bold" Grid.Row="2" />
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Flags}" />
+                        <TextBlock Text="Member variables" FontWeight="Bold" Grid.Row="3" Grid.ColumnSpan="2" />
+                        <DataGrid Grid.Row="4" Grid.ColumnSpan="2"
+                                  PreviewMouseWheel="DataGrid_PreviewMouseWheel"
+                                  ItemsSource="{Binding MemberVars}"
+                                  AutoGenerateColumns="False"
+                                  HeadersVisibility="Column">
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn Header="Type" Width="Auto">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <local:TypeLinkView DataContext="{Binding Type}" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Name" Width="*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <local:InlineHashNameNodeView DataContext="{Binding Name}" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="Offset" Width="Auto" Binding="{Binding Offset}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </DataTemplate>
                 <DataTemplate DataType="{x:Type mwcctypes:TypeClass}">
                     <Grid>
                         <Grid.ColumnDefinitions>

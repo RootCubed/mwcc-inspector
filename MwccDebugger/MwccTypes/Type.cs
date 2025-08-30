@@ -103,6 +103,74 @@ namespace MwccInspector.MwccTypes {
         }
     }
 
+
+    [StructLayout(LayoutKind.Explicit, Pack = 1)]
+    struct TypeStructRaw {
+        [FieldOffset(0x0)]
+        public TypeBaseRaw Base;
+        [FieldOffset(0x6)]
+        public uint StructNamePtr;
+        [FieldOffset(0xa)]
+        public uint MemberVarsPtr;
+        [FieldOffset(0x12)]
+        public byte StructType;
+        [FieldOffset(0x13)]
+        public byte Flags;
+    }
+
+    [StructLayout(LayoutKind.Explicit, Pack = 1)]
+    struct StructMemberRaw {
+        [FieldOffset(0x0)]
+        public uint NextPtr;
+        [FieldOffset(0x4)]
+        public uint TypePtr;
+        [FieldOffset(0x8)]
+        public uint NamePtr;
+        [FieldOffset(0x10)]
+        public int Offset;
+        [FieldOffset(0x14)]
+        public uint Qual;
+    }
+
+    class TypeStruct : TypeBase {
+        public class StructMember : MwccType<StructMemberRaw> {
+            public TypeBase Type { get; }
+            public HashNameNode Name { get; }
+            public int Offset { get; }
+            public StructMember(DebugClient client, uint address) : base(client, address) {
+                Type = MwccType.ReadType(client, RawData.TypePtr);
+                Name = Read<HashNameNode>(client, RawData.NamePtr);
+                Offset = RawData.Offset;
+            }
+            public static List<StructMember> ReadList(DebugClient client, uint address) {
+                var currPtr = address;
+                List<StructMember> res = [];
+                while (currPtr != 0) {
+                    var info = Read<StructMember>(client, currPtr);
+                    res.Add(info);
+                    currPtr = info.RawData.NextPtr;
+                }
+                return res;
+            }
+        };
+        public HashNameNode? Name { get; }
+        public List<StructMember> MemberVars { get; }
+        public byte StructType { get; }
+        public byte Flags { get; }
+        public TypeStruct(DebugClient client, uint address) : base(client, address) {
+            var data = client.DataSpaces.ReadVirtual<TypeStructRaw>(address);
+            if (data.StructNamePtr != 0) {
+                Name = Read<HashNameNode>(client, data.StructNamePtr);
+            }
+            MemberVars = StructMember.ReadList(client, data.MemberVarsPtr);
+            StructType = data.StructType;
+            Flags = data.Flags;
+        }
+        public override string ToString() {
+            return $"struct {Name?.Name ?? "(anonymous)"}";
+        }
+    }
+
     [StructLayout(LayoutKind.Explicit, Pack = 1)]
     struct TypeClassRaw {
         [FieldOffset(0x0)]
@@ -261,6 +329,7 @@ namespace MwccInspector.MwccTypes {
                 TypeType.TYPEVOID => new TypeVoid(client, address),
                 TypeType.TYPEINT or
                 TypeType.TYPEFLOAT => MwccCachedType.Read<TypeBasicType>(client, address),
+                TypeType.TYPESTRUCT => MwccCachedType.Read<TypeStruct>(client, address),
                 TypeType.TYPECLASS => MwccCachedType.Read<TypeClass>(client, address),
                 TypeType.TYPEFUNC => MwccCachedType.Read<TypeFunc>(client, address),
                 TypeType.TYPEPOINTER => MwccCachedType.Read<TypePointer>(client, address),
