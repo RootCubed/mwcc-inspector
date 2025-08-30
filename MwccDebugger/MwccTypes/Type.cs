@@ -347,7 +347,11 @@ namespace MwccInspector.MwccTypes {
             TargetType = MwccType.ReadType(client, data.TargetTypePtr);
         }
         public override string ToString() {
-            return $"{TargetType}*";
+            if (Type == TypeType.TYPEPOINTER) {
+                return $"{TargetType}*";
+            } else {
+                return $"{TargetType}[{Size / TargetType.Size}]";
+            }
         }
     }
 
@@ -362,7 +366,8 @@ namespace MwccInspector.MwccTypes {
                 TypeType.TYPESTRUCT => MwccCachedType.Read<TypeStruct>(client, address),
                 TypeType.TYPECLASS => MwccCachedType.Read<TypeClass>(client, address),
                 TypeType.TYPEFUNC => MwccCachedType.Read<TypeFunc>(client, address),
-                TypeType.TYPEPOINTER => MwccCachedType.Read<TypePointer>(client, address),
+                TypeType.TYPEPOINTER or
+                TypeType.TYPEARRAY => MwccCachedType.Read<TypePointer>(client, address),
                 _ => new TypeUnknown(client, address),
             };
         }
