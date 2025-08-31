@@ -7,7 +7,6 @@
 		<Nullable>enable</Nullable>
 		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
 		<UseWPF>true</UseWPF>
-    	<DefineConstants>$(DefineConstants)$(FeatureFlags.Replace("#",";"))</DefineConstants>
 	</PropertyGroup>
 
 	<ItemGroup>
