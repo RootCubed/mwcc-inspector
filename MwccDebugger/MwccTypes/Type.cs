@@ -301,14 +301,21 @@ namespace MwccInspector.MwccTypes {
         public class FuncArg : MwccType<FuncArgRaw> {
             public uint NextPtr => RawData.NextPtr;
             public HashNameNode? Name { get; }
-            public TypeBase Type { get; }
+            public TypeBase? Type { get; }
             public FuncArg(DebugClient client, uint address) : base(client, address) {
                 if (RawData.NamePtr != 0) {
                     Name = Read<HashNameNode>(client, RawData.NamePtr);
                 }
-                Type = MwccType.ReadType(client, RawData.TypePtr);
+                if (RawData.TypePtr != 0) {
+                    Type = MwccType.ReadType(client, RawData.TypePtr);
+                } else {
+                    Type = null;
+                }
             }
             public override string ToString() {
+                if (Type == null) {
+                    return "...";
+                }
                 if (Name == null) {
                     return Type.ToString();
                 }
