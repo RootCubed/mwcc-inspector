@@ -16,6 +16,10 @@ namespace MwccInspectorUI.Model {
         public MwccDebugger(string commandLine) {
             DebugInterface = new MwccDebugInterface(commandLine);
             Dictionary<string, string> BuildDateToVersion = new() {
+                { "Apr 13 2000", "GC/1.0" },
+                { "Feb  7 2001", "GC/1.1" },
+                { "Apr 23 2001", "GC/1.2.5" },
+                { "May  7 2002", "GC/1.3.2" },
                 { "Sep 16 2002", "GC/2.0" },
                 { "Feb 20 2003", "GC/2.5" },
                 { "Jul 14 2003", "GC/2.6" },
@@ -26,6 +30,10 @@ namespace MwccInspectorUI.Model {
                 { "Apr  2 2009", "Wii/1.1" },
             };
             Dictionary<string, uint> BreakpointsForVersion = new() {
+                { "GC/1.0", 0x0043112f },
+                { "GC/1.1", 0x0042cd0f },
+                { "GC/1.2.5", 0x0042cd1f },
+                { "GC/1.3.2", 0x0042dde5 },
                 { "GC/2.0", 0x0042ddf5 },
                 { "GC/2.5", 0x0042de25 },
                 { "GC/2.6", 0x0042de25 },
@@ -48,11 +56,16 @@ namespace MwccInspectorUI.Model {
 #elif MWCC_GC_3_0
             if (versionName != "GC/3.0" &&
                 versionName != "GC/3.0a3") {
-#else
+#elif MWCC_GC_1_3_2
             if (versionName != "GC/2.7" &&
                 versionName != "GC/2.6" &&
                 versionName != "GC/2.5" &&
-                versionName != "GC/2.0") {
+                versionName != "GC/2.0" &&
+                versionName != "GC/1.3.2") {
+#else
+            if (versionName != "GC/1.2.5" &&
+                versionName != "GC/1.1" &&
+                versionName != "GC/1.0") {
 #endif
                 throw new Exception($"Wrong version of mwccinspector");
             }

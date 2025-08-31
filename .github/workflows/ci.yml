@@ -11,12 +11,14 @@ jobs:
       matrix:
         include:
           - name: Wii_1.1
-            flags: "#MWCC_WII_1_1#MWCC_WII_1_0#MWCC_GC_3_0"
+            flags: "#MWCC_WII_1_1#MWCC_WII_1_0#MWCC_GC_3_0#MWCC_GC_1_3_2"
           - name: Wii_1.0
-            flags: "#MWCC_WII_1_0#MWCC_GC_3_0"
+            flags: "#MWCC_WII_1_0#MWCC_GC_3_0#MWCC_GC_1_3_2"
           - name: GC_3.0
-            flags: "#MWCC_GC_3_0"
+            flags: "#MWCC_GC_3_0#MWCC_GC_1_3_2"
           - name: GC_2.7
+            flags: "#MWCC_GC_1_3_2"
+          - name: GC_1.0
             flags: ""
 
     steps:

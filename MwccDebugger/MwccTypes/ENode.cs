@@ -67,7 +67,9 @@ namespace MwccInspector.MwccTypes {
         ESTMT,
         E_UNK_81, E_UNK_82,
 #else
-        E_UNK_67,
+#if MWCC_GC_1_3_2
+        EINITTRYCATCH,
+#endif
         EOBJLIST,
         EMEMBER,
         ETEMPLDEP,
@@ -76,8 +78,10 @@ namespace MwccInspector.MwccTypes {
         EDEFINE,
         EREUSE,
         EASSBLK,
-        EVECTORCONST,
+        EVECTOR128CONST,
+#if MWCC_GC_1_3_2
         ECONDASS
+#endif
     }
 
     interface IENodeData { }
@@ -276,8 +280,10 @@ namespace MwccInspector.MwccTypes {
             var dataAddress = address;
 #if MWCC_GC_3_0
             dataAddress += 0x10;
-#else
+#elif MWCC_GC_1_3_2
             dataAddress += 0xe;
+#else
+            dataAddress += 0xa;
 #endif
             if (DiadicSyms.ContainsKey(Type)) {
                 Data = new ENodeDataDiadic(client, dataAddress);

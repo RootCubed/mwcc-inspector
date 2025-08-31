@@ -33,7 +33,7 @@ namespace MwccInspector.MwccTypes {
         [FieldOffset(0xe)]
         public uint LabelPtr;
         [FieldOffset(0x1a)]
-        public int SourceOffset;
+        public int SourceOffset; // TODO: different offset pre-1.3.2
     }
 
     class Statement : MwccType<StatementRaw> {
