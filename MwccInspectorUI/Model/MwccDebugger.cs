@@ -39,9 +39,9 @@ namespace MwccInspectorUI.Model {
             if (versionName != "Wii/1.1") {
 #elif MWCC_WII_1_0
             if (versionName != "Wii/1.0") {
-            if (versionName != "GC/3.0a3") {
 #elif MWCC_GC_3_0
-            if (versionName != "GC/3.0") {
+            if (versionName != "GC/3.0" &&
+                versionName != "GC/3.0a3") {
 #else
             if (versionName != "GC/2.7") {
 #endif
