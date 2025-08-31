@@ -6,8 +6,12 @@ namespace MwccInspector.MwccTypes {
         TYPEVOID,
         TYPEINT,
         TYPEFLOAT,
+#if MWCC_GC_3_0
         TYPE_3,
+#endif
+#if MWCC_WII_1_1
         TYPE_4,
+#endif
         TYPEENUM,
         TYPESTRUCT,
         TYPECLASS,

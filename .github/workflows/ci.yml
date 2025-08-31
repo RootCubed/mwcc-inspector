@@ -7,6 +7,17 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    strategy:
+      matrix:
+        include:
+          - name: Wii_1.1
+            flags: "#MWCC_WII_1_1#MWCC_WII_1_0#MWCC_GC_3_0"
+          - name: Wii_1.0
+            flags: "#MWCC_WII_1_0#MWCC_GC_3_0"
+          - name: GC_3.0
+            flags: "#MWCC_GC_3_0"
+          - name: GC_2.7
+            flags: ""
 
     steps:
     - uses: actions/checkout@v4
@@ -15,7 +26,7 @@ jobs:
       with:
         dotnet-version: 9.0.x
     - name: Build
-      run: dotnet publish -p:DebugType=None -p:DebugSymbols=false
+      run: dotnet publish -p:DebugType=None -p:DebugSymbols=false -p:FeatureFlags="${{ matrix.flags }}"
     - name: Package
       run: |
         cd MwccInspectorUI/bin/Release/net9.0-windows7.0/
@@ -23,5 +34,5 @@ jobs:
     - name: Publish
       uses: actions/upload-artifact@v4.6.2
       with:
-        name: MwccInspector
+        name: MwccInspector-${{ matrix.name }}
         path: MwccInspectorUI/bin/Release/net9.0-windows7.0/MwccInspector/

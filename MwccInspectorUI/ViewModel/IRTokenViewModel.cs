@@ -128,10 +128,12 @@ namespace MwccInspectorUI.ViewModel {
                         }
                         res.Add(new(")", expr));
                         break;
+#if MWCC_GC_3_0
                     case ENodeType.EINFO:
                         var info = (ENodeDataInfo)expr.Data;
                         res.Add(new("INFO", expr));
                         break;
+#endif
                     case ENodeType.ECOND:
                         var cond = (ENodeDataCond)expr.Data;
                         res.AddRange(MakeTokens(cond.Cond));

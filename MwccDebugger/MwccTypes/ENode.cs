@@ -18,16 +18,23 @@ namespace MwccInspector.MwccTypes {
         EMULASS, EDIVASS, EMODASS, EADDASS, ESUBASS, ESHLASS, ESHRASS,
         EANDASS, EXORASS, EORASS,
         ECOMMA,
+#if MWCC_GC_3_0
         EMIN, EMAX,
+#endif
         EPMODULO,
         EROTL, EROTR,
         EBCLR, EBTST, EBSET,
         ETYPCON,
         EBITFIELD,
-        EINTCONST, EFLOATCONST, E_UNK_54, ESTRINGCONST,
+        EINTCONST, EFLOATCONST,
+#if MWCC_GC_3_0
+        E_UNK_54,
+#endif
+        ESTRINGCONST,
         ECOND,
         EFUNCCALL, EFUNCCALLP,
         EOBJREF,
+#if MWCC_GC_3_0
         ENULLCHECK,
         EPRECOMP,
         ELABEL,
@@ -35,10 +42,23 @@ namespace MwccInspector.MwccTypes {
         ESCOPEBEGIN, ESCOPEEND,
         EINFO,
         EMFPOINTER,
+#else
+        EMFPOINTER,
+        ENULLCHECK,
+        EPRECOMP,
+#endif
         ETEMP,
-        ELOGOBJ, EARGOBJ,
+#if MWCC_GC_3_0
+        ELOCOBJ,
+        EARGOBJ,
+#else
+        EARGOBJ,
+        ELOCOBJ,
+        ELABEL,
+#endif
         ESETCONST,
         ENEWEXCEPTION, ENEWEXCEPTIONARRAY,
+#if MWCC_GC_3_0
         EINITTRYCATCH,
         EOBJACCESS,
         ETEMPLDEP,
@@ -46,6 +66,12 @@ namespace MwccInspector.MwccTypes {
         ECTORINIT,
         ESTMT,
         E_UNK_81, E_UNK_82,
+#else
+        E_UNK_67,
+        EOBJLIST,
+        EMEMBER,
+        ETEMPLDEP,
+#endif
         EINSTRUCTION,
         EDEFINE,
         EREUSE,
@@ -247,7 +273,12 @@ namespace MwccInspector.MwccTypes {
 
         public ENode(DebugClient client, uint address) : base(client, address) {
             Type = RawData.Type;
-            var dataAddress = address + 0x10;
+            var dataAddress = address;
+#if MWCC_GC_3_0
+            dataAddress += 0x10;
+#else
+            dataAddress += 0xe;
+#endif
             if (DiadicSyms.ContainsKey(Type)) {
                 Data = new ENodeDataDiadic(client, dataAddress);
             } else if (MonadicTypes.ContainsKey(Type)) {
@@ -256,7 +287,9 @@ namespace MwccInspector.MwccTypes {
                 Data = Type switch {
                     ENodeType.EOBJREF => new ENodeDataObject(client, dataAddress),
                     ENodeType.EFUNCCALL => new ENodeDataFuncCall(client, dataAddress),
+#if MWCC_GC_3_0
                     ENodeType.EINFO => new ENodeDataInfo(client, dataAddress),
+#endif
                     ENodeType.ECOND => new ENodeDataCond(client, dataAddress),
                     ENodeType.EINTCONST => new ENodeDataIntVal(client, dataAddress),
                     ENodeType.EFLOATCONST => new ENodeDataFloatVal(client, dataAddress),
@@ -287,12 +320,14 @@ namespace MwccInspector.MwccTypes {
                     case ENodeType.EFUNCCALL:
                         var funcall = (ENodeDataFuncCall)Data;
                         return $"{funcall.Func}({string.Join(", ", funcall.Args)})";
+#if MWCC_GC_3_0
                     case ENodeType.EINFO:
                         var info = (ENodeDataInfo)Data;
                         return info.Type switch {
                             5 => $"NODE_INFO({info.Ref})",
                             _ => $"INFO_TYPE_{info.Type}(<???>)"
                         };
+#endif
                     case ENodeType.ECOND:
                         var cond = (ENodeDataCond)Data;
                         return $"{cond.Cond} ? {cond.Lhs} : {cond.Rhs}";

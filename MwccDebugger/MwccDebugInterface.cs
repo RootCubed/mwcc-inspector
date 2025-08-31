@@ -61,6 +61,13 @@ namespace MwccInspector {
             return debugClient;
         }
 
+        public string GetBuildDate() {
+            // Read .data offset from DOS header
+            var dataStart = Client.DataSpaces.ReadVirtual<uint>(0x004001fc);
+            // Build date is conveniently always placed 0x10 bytes after the start of the .data section
+            return Client.DataSpaces.ReadMultiByteStringVirtual(0x00400000 + dataStart + 0x10, 255);
+        }
+
         private class OutputCallbacks(MwccDebugInterface debugger) : IDebugOutputCallbacks {
             private readonly MwccDebugInterface debugger = debugger;
             public HRESULT Output(DEBUG_OUTPUT mask, string text) {

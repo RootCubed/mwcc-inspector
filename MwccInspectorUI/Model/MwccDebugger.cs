@@ -15,7 +15,40 @@ namespace MwccInspectorUI.Model {
 
         public MwccDebugger(string commandLine) {
             DebugInterface = new MwccDebugInterface(commandLine);
-            DebugInterface.AddBreakpointHandler(0x00592123, OnBreakpointHit);
+            Dictionary<string, string> BuildDateToVersion = new() {
+                { "Jul 22 2004", "GC/2.7" },
+                { "Jan 26 2006", "GC/3.0a3" },
+                { "Aug 31 2006", "GC/3.0" },
+                { "Aug 26 2008", "Wii/1.0" },
+                { "Apr  2 2009", "Wii/1.1" },
+            };
+            Dictionary<string, uint> BreakpointsForVersion = new() {
+                { "GC/2.7", 0x0042de25 },
+                { "GC/3.0a3", 0x005759f3 },
+                { "GC/3.0", 0x00577703 },
+                { "Wii/1.0", 0x0058d743 },
+                { "Wii/1.1", 0x00592123 },
+            };
+            var buildDate = DebugInterface.GetBuildDate();
+            if (!BuildDateToVersion.TryGetValue(buildDate, out string? versionName)) {
+                throw new Exception($"Unknown mwcc version (Build date {buildDate})");
+            }
+
+            Console.WriteLine($"Detected mwcc version {versionName}");
+#if MWCC_WII_1_1
+            if (versionName != "Wii/1.1") {
+#elif MWCC_WII_1_0
+            if (versionName != "Wii/1.0") {
+            if (versionName != "GC/3.0a3") {
+#elif MWCC_GC_3_0
+            if (versionName != "GC/3.0") {
+#else
+            if (versionName != "GC/2.7") {
+#endif
+                throw new Exception($"Wrong version of mwccinspector");
+            }
+            var bpAddress = BreakpointsForVersion[versionName];
+            DebugInterface.AddBreakpointHandler(bpAddress, OnBreakpointHit);
         }
 
         public void Run() {

@@ -45,15 +45,28 @@ namespace MwccInspector.MwccTypes {
 
         public Statement(DebugClient client, uint address) : base(client, address) {
             Type = RawData.Type;
-            if (RawData.LabelPtr != 0) {
-                Label = Read<CLabel>(client, RawData.LabelPtr);
-            }
-            if (RawData.ENodePtr != 0) {
-                if (Type == StatementType.ST_ASM) {
-                    Asm = Read<InlineAsm>(client, RawData.ENodePtr);
-                } else {
+            switch (Type) {
+                case StatementType.ST_EXPRESSION:
+                case StatementType.ST_IFGOTO:
+                case StatementType.ST_IFNGOTO:
                     Expression = Read<ENode>(client, RawData.ENodePtr);
-                }
+                    break;
+                case StatementType.ST_RETURN:
+                    if (RawData.ENodePtr != 0) {
+                        Expression = Read<ENode>(client, RawData.ENodePtr);
+                    }
+                    break;
+                case StatementType.ST_ASM:
+                    Asm = Read<InlineAsm>(client, RawData.ENodePtr);
+                    break;
+            }
+            switch (Type) {
+                case StatementType.ST_LABEL:
+                case StatementType.ST_GOTO:
+                case StatementType.ST_IFGOTO:
+                case StatementType.ST_IFNGOTO:
+                    Label = Read<CLabel>(client, RawData.LabelPtr);
+                    break;
             }
             SourceOffset = RawData.SourceOffset;
         }

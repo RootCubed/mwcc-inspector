@@ -88,23 +88,20 @@ namespace MwccInspector.MwccTypes {
         }
     }
 
-    [StructLayout(LayoutKind.Explicit, Pack = 1)]
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     struct ObjMemberVarRaw {
-        [FieldOffset(0x0)]
         public ObjBaseRaw Base;
-        [FieldOffset(0x2)]
+        [MarshalAs(UnmanagedType.I1)]
         public bool IsAnonymous;
-        [FieldOffset(0x3)]
+        [MarshalAs(UnmanagedType.I1)]
         public bool HasPath;
-        [FieldOffset(0x4)]
         public uint NextPtr;
-        [FieldOffset(0x8)]
         public uint NamePtr;
-        [FieldOffset(0x10)]
+#if MWCC_WII_1_0
+        public uint UNK_0C;
+#endif
         public uint TypePtr;
-        [FieldOffset(0x14)]
         public uint Qual;
-        [FieldOffset(0x18)]
         public uint Offset;
     }
     class ObjMemberVar : ObjBase {
@@ -142,17 +139,23 @@ namespace MwccInspector.MwccTypes {
     }
 
 
-    [StructLayout(LayoutKind.Explicit, Pack = 1)]
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     struct ObjObjectRaw {
-        [FieldOffset(0x0)]
         public ObjBaseRaw Base;
-        [FieldOffset(0x2)]
         public DataType Datatype;
-        [FieldOffset(0x8)]
+#if MWCC_GC_3_0
+        public byte Unknown_03;
+        public byte Unknown_04;
+        public byte Unknown_05;
+        public byte Unknown_06;
+        public byte Unknown_07;
+#else
+        public byte Unknown_03;
+        public byte Unknown_04;
+        public byte Unknown_05;
+#endif
         public uint NamespacePtr;
-        [FieldOffset(0xc)]
         public uint NamePtr;
-        [FieldOffset(0x10)]
         public uint TypePtr;
     }
     class ObjObject : ObjBase {
