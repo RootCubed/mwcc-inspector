@@ -343,6 +343,31 @@ namespace MwccInspector.MwccTypes {
 
 
     [StructLayout(LayoutKind.Explicit, Pack = 1)]
+    struct TypeMemberPointerRaw {
+        [FieldOffset(0x0)]
+        public TypeBaseRaw Base;
+        [FieldOffset(0x6)]
+        public uint MemberTypePtr;
+        [FieldOffset(0xa)]
+        public uint ClassTypePtr;
+        [FieldOffset(0xe)]
+        public uint Quals;
+    }
+    class TypeMemberPointer : TypeBase {
+        public TypeBase ClassType { get; }
+        public TypeBase MemberType { get; }
+        public TypeMemberPointer(DebugClient client, uint address) : base(client, address) {
+            var data = client.DataSpaces.ReadVirtual<TypeMemberPointerRaw>(address);
+            ClassType = MwccType.ReadType(client, data.ClassTypePtr);
+            MemberType = MwccType.ReadType(client, data.MemberTypePtr);
+        }
+        public override string ToString() {
+            return $"{ClassType}::{MemberType}*";
+        }
+    }
+
+
+    [StructLayout(LayoutKind.Explicit, Pack = 1)]
     struct TypePointerRaw {
         [FieldOffset(0x0)]
         public TypeBaseRaw Base;
@@ -377,6 +402,7 @@ namespace MwccInspector.MwccTypes {
                 TypeType.TYPESTRUCT => MwccCachedType.Read<TypeStruct>(client, address),
                 TypeType.TYPECLASS => MwccCachedType.Read<TypeClass>(client, address),
                 TypeType.TYPEFUNC => MwccCachedType.Read<TypeFunc>(client, address),
+                TypeType.TYPEMEMBERPOINTER => MwccCachedType.Read<TypeMemberPointer>(client, address),
                 TypeType.TYPEPOINTER or
                 TypeType.TYPEARRAY => MwccCachedType.Read<TypePointer>(client, address),
                 _ => new TypeUnknown(client, address),

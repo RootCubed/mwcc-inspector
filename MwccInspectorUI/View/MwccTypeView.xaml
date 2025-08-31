@@ -71,6 +71,22 @@
                         </DataGrid>
                     </Grid>
                 </DataTemplate>
+                <DataTemplate DataType="{x:Type mwcctypes:TypeMemberPointer}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Class type" FontWeight="Bold" Grid.Column="0" />
+                        <local:TypeLinkView Grid.Column="1" DataContext="{Binding ClassType}" />
+                        <TextBlock Grid.Row="1" Text="Member type" FontWeight="Bold" Grid.Column="0" />
+                        <local:TypeLinkView Grid.Row="1" Grid.Column="1" DataContext="{Binding MemberType}" />
+                    </Grid>
+                </DataTemplate>
                 <DataTemplate DataType="{x:Type mwcctypes:TypePointer}">
                     <Grid>
                         <Grid.ColumnDefinitions>
