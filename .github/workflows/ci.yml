@@ -39,7 +39,8 @@ jobs:
         name: MwccInspector (${{ matrix.version }})
         path: MwccInspectorUI/bin/${{ matrix.version }} Release/net9.0-windows7.0/MwccInspector/
     - name: Release
-      uses: softprops/action-gh-release@v2.2.1
+      uses: softprops/action-gh-release@v2
       if: github.ref_type == 'tag'
       with:
+        draft: true
         files: MwccInspectorUI/bin/*/net9.0-windows7.0/*.zip
