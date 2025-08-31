@@ -3,6 +3,10 @@ name: Build .NET project
 on:
   push:
     branches: [ "master" ]
+    tags: "v*.*.*"
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -28,8 +32,14 @@ jobs:
       run: |
         cd "MwccInspectorUI/bin/${{ matrix.version }} Release/net9.0-windows7.0/"
         Rename-Item -Path publish -NewName MwccInspector
+        Compress-Archive -Path MwccInspector -DestinationPath "MwccInspector (${{ matrix.version }}).zip"
     - name: Publish
       uses: actions/upload-artifact@v4.6.2
       with:
         name: MwccInspector (${{ matrix.version }})
         path: MwccInspectorUI/bin/${{ matrix.version }} Release/net9.0-windows7.0/MwccInspector/
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      if: github.ref_type == 'tag'
+      with:
+        files: MwccInspectorUI/bin/*/net9.0-windows7.0/*.zip
