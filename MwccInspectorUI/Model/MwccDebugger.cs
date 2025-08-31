@@ -82,10 +82,14 @@ namespace MwccInspectorUI.Model {
             MwccCachedType.ClearCache();
 
             uint stmtPtr = (uint)client.Registers.GetValue(client.Registers.GetIndexByName("ebx")).I64;
-            uint edi = (uint)client.Registers.GetValue(client.Registers.GetIndexByName("edi")).I64;
+#if MWCC_GC_3_0
+            uint objPtr = (uint)client.Registers.GetValue(client.Registers.GetIndexByName("edi")).I64;
+#else
+            uint objPtr = (uint)client.Registers.GetValue(client.Registers.GetIndexByName("ebp")).I64;
+#endif
             string funcName = "Init-code";
-            if (edi != 0) {
-                ObjObject func = MwccCachedType.Read<ObjObject>(client, edi);
+            if (objPtr != 0) {
+                ObjObject func = MwccCachedType.Read<ObjObject>(client, objPtr);
                 Console.WriteLine($"Function: {func}");
                 funcName = func.Name.Name;
             }
